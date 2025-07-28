@@ -124,19 +124,22 @@ const CorsErrorHelp = () => (
     <div className="mt-4 bg-red-900/50 border border-red-500 p-4 rounded-lg text-left">
         <h3 className="font-bold text-lg text-red-300">Backend Connection Error (CORS)</h3>
         <p className="text-sm text-red-300 mt-2">
-            The app couldn't connect to your AWS backend. This is usually a CORS configuration issue on the AWS side. The browser is blocking the request for security.
+            The app couldn't connect to your AWS backend. This is almost always a CORS configuration issue on the AWS side. The browser is blocking the request for security.
         </p>
-        <p className="text-sm text-red-300 mt-2 font-bold">To fix this, you must enable CORS in your AWS API Gateway:</p>
-        <ol className="list-decimal list-inside text-sm text-red-300 mt-2 space-y-1">
-            <li>Go to the AWS API Gateway console for your API.</li>
-            <li>In the "Resources" panel, select your <strong>/generate-podcast</strong> resource.</li>
+        <p className="text-sm text-red-300 mt-2 font-bold">Please check the CORS configuration for BOTH of your new endpoints:</p>
+        <ol className="list-decimal list-inside text-sm text-red-300 mt-2 space-y-2">
+            <li>Go to the AWS API Gateway console for your API (`PodcastGeneratorAPI`).</li>
+            <li>In the "Resources" panel, select the <strong>/generate-script</strong> resource.</li>
             <li>Click the <strong>"Actions"</strong> button and select <strong>"Enable CORS"</strong>.</li>
-            <li>Leave the default settings and click <strong>"Enable CORS and replace existing CORS headers"</strong>.</li>
-            <li>A new `OPTIONS` method will appear. This is correct.</li>
+            <li>Click the **"Enable CORS and replace existing CORS headers"** button.</li>
+            <li>Now, select the <strong>/generate-audio</strong> resource.</li>
+            <li>Click the <strong>"Actions"</strong> button and select <strong>"Enable CORS"</strong> again.</li>
+            <li>Click the **"Enable CORS and replace existing CORS headers"** button.</li>
             <li><strong>CRITICAL:</strong> You must deploy your changes. Click <strong>"Actions"</strong> again, select <strong>"Deploy API"</strong>, and choose your <strong>"Prod"</strong> stage.</li>
         </ol>
     </div>
 );
+
 
 // --- MAIN APP COMPONENT ---
 export default function App() {
@@ -188,7 +191,6 @@ export default function App() {
       setIsSuggesting(true);
       setError(null);
       
-      // This is a mock call. In a real app, this would call a backend endpoint.
       console.log("Simulating topic suggestion for interests:", interests);
       await new Promise(res => setTimeout(res, 1000));
       const suggestionsText = "The Science of Rainbows, History of Video Games, All About Giant Squids";
@@ -220,6 +222,7 @@ export default function App() {
     try {
         const response = await fetch(API_GATEWAY_URL, {
             method: 'POST',
+            mode: 'cors', // Explicitly set CORS mode
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
@@ -264,6 +267,7 @@ export default function App() {
     try {
         const response = await fetch(API_GATEWAY_URL, {
             method: 'POST',
+            mode: 'cors', // Explicitly set CORS mode
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
