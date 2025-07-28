@@ -120,23 +120,13 @@ const BuyTokensModal = ({ setShowModal, setTokenBalance }) => {
     );
 };
 
-const CorsErrorHelp = () => (
+const CorsErrorHelp = ({ apiBaseUrl }) => (
     <div className="mt-4 bg-red-900/50 border border-red-500 p-4 rounded-lg text-left">
         <h3 className="font-bold text-lg text-red-300">Backend Connection Error (CORS)</h3>
         <p className="text-sm text-red-300 mt-2">
-            The app couldn't connect to your AWS backend. This is almost always a CORS configuration issue on the AWS side. The browser is blocking the request for security.
+            The app tried to connect to `{apiBaseUrl}` but was blocked. This is a CORS configuration issue on the AWS side.
         </p>
-        <p className="text-sm text-red-300 mt-2 font-bold">Please check the CORS configuration for BOTH of your new endpoints:</p>
-        <ol className="list-decimal list-inside text-sm text-red-300 mt-2 space-y-2">
-            <li>Go to the AWS API Gateway console for your API (`PodcastGeneratorAPI`).</li>
-            <li>In the "Resources" panel, select the <strong>/generate-script</strong> resource.</li>
-            <li>Click the <strong>"Actions"</strong> button and select <strong>"Enable CORS"</strong>.</li>
-            <li>Click the **"Enable CORS and replace existing CORS headers"** button.</li>
-            <li>Now, select the <strong>/generate-audio</strong> resource.</li>
-            <li>Click the <strong>"Actions"</strong> button and select <strong>"Enable CORS"</strong> again.</li>
-            <li>Click the **"Enable CORS and replace existing CORS headers"** button.</li>
-            <li><strong>CRITICAL:</strong> You must deploy your changes. Click <strong>"Actions"</strong> again, select <strong>"Deploy API"</strong>, and choose your <strong>"Prod"</strong> stage.</li>
-        </ol>
+        <p className="text-sm text-red-300 mt-2 font-bold">Please follow the "Final API Gateway Setup Guide" to ensure CORS is configured and deployed correctly for both the `/generate-script` and `/generate-audio` endpoints.</p>
     </div>
 );
 
@@ -161,7 +151,6 @@ export default function App() {
   const [error, setError] = useState(null);
   const [isCorsError, setIsCorsError] = useState(false);
   
-  // New state for the preview feature
   const [scriptPreview, setScriptPreview] = useState(null);
   const [generatedPodcast, setGeneratedPodcast] = useState(null);
   
@@ -201,6 +190,9 @@ export default function App() {
       setIsSuggesting(false);
   };
   
+  // --- API ENDPOINT CONFIGURATION ---
+  const API_BASE_URL = 'https://if0q6p8bt4.execute-api.us-east-2.amazonaws.com/Prod';
+
   // --- WORKFLOW STEP 1: GENERATE SCRIPT FOR PREVIEW ---
   const handleGenerateScript = async (e) => {
     e.preventDefault();
@@ -215,14 +207,14 @@ export default function App() {
     setScriptPreview(null);
     setLoadingStep('Generating script for preview...');
 
-    const API_GATEWAY_URL = 'https://wkairzqqxg.execute-api.us-east-2.amazonaws.com/Prod/generate-script';
+    const API_ENDPOINT = `${API_BASE_URL}/generate-script`;
     
     const payload = { topic, childName, age, gradeLevel, interests, userId: user.id };
 
     try {
-        const response = await fetch(API_GATEWAY_URL, {
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
-            mode: 'cors', // Explicitly set CORS mode
+            mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
@@ -256,7 +248,7 @@ export default function App() {
     setIsCorsError(false);
     setLoadingStep('Approving script & creating audio...');
 
-    const API_GATEWAY_URL = 'https://wkairzqqxg.execute-api.us-east-2.amazonaws.com/Prod/generate-audio';
+    const API_ENDPOINT = `${API_BASE_URL}/generate-audio`;
 
     const payload = {
         script: scriptPreview,
@@ -265,9 +257,9 @@ export default function App() {
     };
 
     try {
-        const response = await fetch(API_GATEWAY_URL, {
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
-            mode: 'cors', // Explicitly set CORS mode
+            mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
@@ -302,7 +294,7 @@ export default function App() {
   };
 
   const handleDisapproveScript = () => {
-    setScriptPreview(null); // Just clear the preview, no token cost
+    setScriptPreview(null); 
     console.log("Script disapproved. No token was used.");
   };
 
@@ -335,7 +327,6 @@ export default function App() {
         <main>
           <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
             
-            {/* --- SCRIPT PREVIEW UI --- */}
             {scriptPreview && !isLoading ? (
               <div>
                 <h2 className="text-2xl font-bold text-white mb-4">Preview Your Script</h2>
@@ -352,7 +343,6 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              /* --- MAIN GENERATION FORM --- */
               <form onSubmit={handleGenerateScript}>
                 <div className="mb-6">
                     <div className="flex justify-between items-center mb-2">
@@ -383,7 +373,7 @@ export default function App() {
             )}
 
             {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
-            {isCorsError && <CorsErrorHelp />}
+            {isCorsError && <CorsErrorHelp apiBaseUrl={API_BASE_URL} />}
           </div>
           
           <div className="mt-12">
