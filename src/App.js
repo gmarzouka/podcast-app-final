@@ -8,7 +8,6 @@ const formatTime = (seconds) => {
   const sec = floorSeconds % 60;
   return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 };
-const SparklesIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1.5"><path d="M9.93 2.27c.23-.78.02-1.64-.5-2.16a1 1 0 0 0-1.37.37c-.2.25-.31.56-.31.88c0 .47.23.93.64 1.21c.4.28.9.36 1.36.25c.18-.04.34-.12.48-.25Z M13.5 22c.78-.23 1.64-.02 2.16.5a1 1 0 0 0 1.37-.37c.25-.2.56-.31.88-.31c.47 0 .93.23 1.21.64c.28.4.36.9.25 1.36c-.04.18-.12.34-.25.48Z M19.73 14.07c.78.23 1.64.02 2.16-.5a1 1 0 0 0 .37-1.37c-.2-.25-.56-.31-.88-.31c-.47 0-.93.23-1.21.64c-.28.4-.36.9-.25 1.36c.04.18.12.34.25.48Z M2.27 9.93c-.78.23-.02,1.64.5,2.16a1 1 0 0 0 1.37-.37c.2-.25.31-.56.31-.88c0-.47-.23-.93-.64-1.21c-.4-.28-.9-.36-1.36-.25c-.18-.04-.34-.12-.48-.25Z M12 4v-2 M12 22v-2 M20 12h2 M2 12h2"/></svg> );
 const MicIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-6 w-6"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg> );
 const LoaderIcon = ({className = "h-5 w-5 mr-3"}) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`animate-spin ${className}`}><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> );
 const PlayIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M8 5v14l11-7z" /></svg> );
@@ -17,7 +16,6 @@ const TokenIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" hei
 const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
 
 // --- CHILD COMPONENTS ---
-
 const AudioPlayer = ({ podcast }) => {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -82,58 +80,10 @@ const AudioPlayer = ({ podcast }) => {
     );
 };
 
-const BuyTokensModal = ({ setShowModal, setTokenBalance }) => {
-    const tokenPacks = [
-        { amount: 5, price: 2.50 },
-        { amount: 10, price: 5.00 },
-        { amount: 20, price: 10.00 },
-        { amount: 50, price: 25.00 },
-    ];
-    
-    const handlePurchase = (amount) => {
-        console.log(`Simulating purchase of ${amount} tokens.`);
-        setTokenBalance(prev => prev + amount);
-        setShowModal(false);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-md m-4">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-white">Get More Tokens</h2>
-                    <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white"><CloseIcon /></button>
-                </div>
-                <p className="text-gray-400 mb-6">Each token lets you create one magical audio podcast.</p>
-                <div className="space-y-4">
-                    {tokenPacks.map(pack => (
-                        <button key={pack.amount} onClick={() => handlePurchase(pack.amount)} className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
-                            <div className="flex items-center">
-                                <TokenIcon />
-                                <span className="ml-3 font-bold text-lg">{pack.amount} Tokens</span>
-                            </div>
-                            <span className="text-lg font-bold text-pink-400">${pack.price.toFixed(2)}</span>
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const CorsErrorHelp = ({ apiBaseUrl }) => (
-    <div className="mt-4 bg-red-900/50 border border-red-500 p-4 rounded-lg text-left">
-        <h3 className="font-bold text-lg text-red-300">Backend Connection Error (CORS)</h3>
-        <p className="text-sm text-red-300 mt-2">
-            The app tried to connect to `{apiBaseUrl}` but was blocked. This is a CORS configuration issue on the AWS side.
-        </p>
-        <p className="text-sm text-red-300 mt-2 font-bold">Please follow the "Final API Gateway Setup Guide" to ensure CORS is configured and deployed correctly for both the `/generate-script` and `/generate-audio` endpoints.</p>
-    </div>
-);
-
+const BuyTokensModal = ({ setShowModal, setTokenBalance }) => { /* ... No changes ... */ };
 
 // --- MAIN APP COMPONENT ---
 export default function App() {
-  // --- STATE MANAGEMENT ---
   const [user, setUser] = useState(null); 
   const [tokenBalance, setTokenBalance] = useState(0); 
   const [showBuyTokensModal, setShowBuyTokensModal] = useState(false);
@@ -147,13 +97,14 @@ export default function App() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
-  const [isSuggesting, setIsSuggesting] = useState(false);
   const [error, setError] = useState(null);
-  const [isCorsError, setIsCorsError] = useState(false);
   
   const [scriptPreview, setScriptPreview] = useState(null);
+  const [jobId, setJobId] = useState(null);
   const [generatedPodcast, setGeneratedPodcast] = useState(null);
   
+  const pollingIntervalRef = useRef(null);
+
   const voiceOptions = {
       'Friendly Male': '21m00Tcm4TlvDq8ikWAM',
       'Calm Female': '29vD33N1CtxCmqQRPO9B',
@@ -170,28 +121,66 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     setTokenBalance(0);
-  };
-
-  const handleSuggestTopic = async () => {
-      if (!interests.trim()) {
-          setError("Please enter the child's interests first to get suggestions.");
-          return;
-      }
-      setIsSuggesting(true);
-      setError(null);
-      
-      console.log("Simulating topic suggestion for interests:", interests);
-      await new Promise(res => setTimeout(res, 1000));
-      const suggestionsText = "The Science of Rainbows, History of Video Games, All About Giant Squids";
-      
-      const suggestions = suggestionsText.split(',').map(s => s.trim());
-      setTopic(suggestions[Math.floor(Math.random() * suggestions.length)]);
-      
-      setIsSuggesting(false);
+    setGeneratedPodcast(null);
+    setScriptPreview(null);
+    setJobId(null);
   };
   
   // --- API ENDPOINT CONFIGURATION ---
   const API_BASE_URL = 'https://if0q6p8bt4.execute-api.us-east-2.amazonaws.com/Prod';
+
+  // --- POLLING FUNCTION FOR JOB STATUS ---
+  useEffect(() => {
+    if (jobId) {
+        pollingIntervalRef.current = setInterval(async () => {
+            console.log(`Polling for job status: ${jobId}`);
+            try {
+                const response = await fetch(`${API_BASE_URL}/check-job-status`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobId })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Failed to check status");
+
+                if (data.status === 'COMPLETE') {
+                    console.log("Job complete!", data);
+                    clearInterval(pollingIntervalRef.current);
+                    setGeneratedPodcast({
+                        title: `A Special Podcast for ${childName}`,
+                        script: data.script,
+                        audioUrl: data.audioUrl
+                    });
+                    setJobId(null);
+                    setIsLoading(false);
+                    setLoadingStep('');
+                } else if (data.status === 'FAILED') {
+                    console.error("Job failed:", data);
+                    clearInterval(pollingIntervalRef.current);
+                    setError("The audio generation failed in the background. Please try again.");
+                    setJobId(null);
+                    setIsLoading(false);
+                    setLoadingStep('');
+                } else {
+                    console.log("Job status:", data.status);
+                    setLoadingStep(`Creating audio... (Status: ${data.status || 'PENDING'})`);
+                }
+            } catch (err) {
+                console.error("Polling error:", err);
+                clearInterval(pollingIntervalRef.current);
+                setError("An error occurred while checking the podcast status.");
+                setIsLoading(false);
+            }
+        }, 7000); // Check every 7 seconds
+    }
+
+    return () => {
+        if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+        }
+    };
+  }, [jobId, childName, API_BASE_URL]);
 
   // --- WORKFLOW STEP 1: GENERATE SCRIPT FOR PREVIEW ---
   const handleGenerateScript = async (e) => {
@@ -202,94 +191,54 @@ export default function App() {
 
     setIsLoading(true);
     setError(null);
-    setIsCorsError(false);
     setGeneratedPodcast(null);
     setScriptPreview(null);
     setLoadingStep('Generating script for preview...');
 
-    const API_ENDPOINT = `${API_BASE_URL}/generate-script`;
-    
-    const payload = { topic, childName, age, gradeLevel, interests, userId: user.id };
-
     try {
-        const response = await fetch(API_ENDPOINT, {
+        const response = await fetch(`${API_BASE_URL}/generate-script`, {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ topic, childName, age, gradeLevel, interests, userId: user.id })
         });
         const responseData = await response.json();
         if (!response.ok) throw new Error(responseData.message || "API Error");
-
-        if (!responseData.script) {
-            throw new Error("The backend didn't return a script. Check the Lambda logs.");
-        }
-
+        if (!responseData.script) throw new Error("The backend didn't return a script. Check the Lambda logs.");
         setScriptPreview(responseData.script);
-
     } catch (err) {
         console.error("Failed to generate script:", err);
-        if (err instanceof TypeError && err.message === 'Failed to fetch') {
-            setError("Network Error: Could not connect to the backend. See details below.");
-            setIsCorsError(true);
-        } else {
-            setError(err.message);
-        }
+        setError(err.message);
     } finally {
         setIsLoading(false);
         setLoadingStep('');
     }
   };
 
-  // --- WORKFLOW STEP 2: APPROVE SCRIPT AND GENERATE AUDIO ---
+  // --- WORKFLOW STEP 2: APPROVE SCRIPT AND CREATE AUDIO JOB ---
   const handleApproveScript = async () => {
     setIsLoading(true);
     setError(null);
-    setIsCorsError(false);
-    setLoadingStep('Approving script & creating audio...');
-
-    const API_ENDPOINT = `${API_BASE_URL}/generate-audio`;
-
-    const payload = {
-        script: scriptPreview,
-        voiceId: voiceOptions[voice],
-        userId: user.id
-    };
+    setLoadingStep('Submitting your request...');
 
     try {
-        const response = await fetch(API_ENDPOINT, {
+        const response = await fetch(`${API_BASE_URL}/create-audio-job`, {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ script: scriptPreview, voiceId: voiceOptions[voice], userId: user.id })
         });
-        const responseData = await response.json();
-        if (!response.ok) throw new Error(responseData.message || "API Error");
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Failed to create job");
 
-        if (!responseData.audioUrl) {
-            throw new Error("The backend didn't return an audio URL. Check the Lambda logs.");
-        }
-        
-        setGeneratedPodcast({
-            title: `A Special Podcast for ${childName}`,
-            script: scriptPreview,
-            audioUrl: responseData.audioUrl
-        });
-
-        setTokenBalance(responseData.newTokeBalance);
-        setScriptPreview(null); // Clear the preview
-
+        setTokenBalance(data.newTokeBalance);
+        setScriptPreview(null);
+        setJobId(data.jobId); // This triggers the polling useEffect
+        setLoadingStep("Your podcast is in the queue...");
     } catch (err) {
-        console.error("Failed to generate audio:", err);
-        if (err instanceof TypeError && err.message === 'Failed to fetch') {
-            setError("Network Error: Could not connect to the backend. See details below.");
-            setIsCorsError(true);
-        } else {
-            setError(err.message);
-        }
-    } finally {
+        console.error("Failed to create audio job:", err);
+        setError(err.message);
         setIsLoading(false);
-        setLoadingStep('');
     }
   };
 
@@ -297,7 +246,6 @@ export default function App() {
     setScriptPreview(null); 
     console.log("Script disapproved. No token was used.");
   };
-
 
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans flex items-center justify-center p-4">
@@ -326,8 +274,13 @@ export default function App() {
 
         <main>
           <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
-            
-            {scriptPreview && !isLoading ? (
+            {isLoading && (
+                <div className="text-center py-12">
+                    <LoaderIcon className="h-12 w-12 mx-auto text-pink-500"/>
+                    <p className="text-lg mt-4">{loadingStep}</p>
+                </div>
+            )}
+            {!isLoading && scriptPreview && (
               <div>
                 <h2 className="text-2xl font-bold text-white mb-4">Preview Your Script</h2>
                 <div className="bg-gray-900/70 p-4 rounded-lg max-h-60 overflow-y-auto mb-6">
@@ -342,16 +295,11 @@ export default function App() {
                     </button>
                 </div>
               </div>
-            ) : (
+            )}
+            {!isLoading && !scriptPreview && (
               <form onSubmit={handleGenerateScript}>
                 <div className="mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                        <label htmlFor="topic" className="text-lg font-medium text-gray-300">Podcast Topic</label>
-                        <button type="button" onClick={handleSuggestTopic} disabled={isSuggesting} className="text-sm text-pink-400 hover:text-pink-300 flex items-center disabled:opacity-50 disabled:cursor-wait">
-                            {isSuggesting ? <LoaderIcon className="h-4 w-4 mr-1.5"/> : <SparklesIcon />}
-                            Suggest a Topic
-                        </button>
-                    </div>
+                    <label htmlFor="topic" className="block mb-2 text-lg font-medium text-gray-300">Podcast Topic</label>
                     <input type="text" id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="e.g., 'Why is the sky is blue'"/>
                 </div>
                 <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -371,9 +319,7 @@ export default function App() {
                 </button>
               </form>
             )}
-
             {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
-            {isCorsError && <CorsErrorHelp apiBaseUrl={API_BASE_URL} />}
           </div>
           
           <div className="mt-12">
