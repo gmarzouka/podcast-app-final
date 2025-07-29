@@ -1,4 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Amplify } from 'aws-amplify';
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+
+// --- CONFIGURE AWS AMPLIFY ---
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      userPoolId: 'us-east-2_RuimWB23M', // Your Correct User Pool ID
+      userPoolClientId: 'dqakk5tcec94d4rednkgi92o2', // Your Correct App Client ID
+    }
+  }
+});
 
 // --- HELPER FUNCTIONS & ICONS ---
 const formatTime = (seconds) => {
@@ -80,56 +93,81 @@ const AudioPlayer = ({ podcast }) => {
     );
 };
 
-const BuyTokensModal = ({ setShowModal, setTokenBalance }) => { /* ... No changes ... */ };
+const BuyTokensModal = ({ setShowModal, setTokenBalance }) => {
+    const tokenPacks = [
+        { amount: 5, price: 2.50 },
+        { amount: 10, price: 5.00 },
+        { amount: 20, price: 10.00 },
+        { amount: 50, price: 25.00 },
+    ];
+    
+    const handlePurchase = (amount) => {
+        console.log(`Simulating purchase of ${amount} tokens.`);
+        setTokenBalance(prev => prev + amount);
+        setShowModal(false);
+    };
 
-// --- MAIN APP COMPONENT ---
-export default function App() {
-  const [user, setUser] = useState(null); 
-  const [tokenBalance, setTokenBalance] = useState(0); 
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-md m-4">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-white">Get More Tokens</h2>
+                    <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white"><CloseIcon /></button>
+                </div>
+                <p className="text-gray-400 mb-6">Each token lets you create one magical audio podcast.</p>
+                <div className="space-y-4">
+                    {tokenPacks.map(pack => (
+                        <button key={pack.amount} onClick={() => handlePurchase(pack.amount)} className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                            <div className="flex items-center">
+                                <TokenIcon />
+                                <span className="ml-3 font-bold text-lg">{pack.amount} Tokens</span>
+                            </div>
+                            <span className="text-lg font-bold text-pink-400">${pack.price.toFixed(2)}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- This is the main application component that renders AFTER a user has logged in ---
+function PodcastGenerator({ signOut, user }) {
+  const [tokenBalance, setTokenBalance] = useState(5);
   const [showBuyTokensModal, setShowBuyTokensModal] = useState(false);
-  
   const [topic, setTopic] = useState('');
   const [childName, setChildName] = useState('');
   const [age, setAge] = useState('');
   const [gradeLevel, setGradeLevel] = useState("Kindergarten - 1st Grade");
   const [voice, setVoice] = useState('Friendly Male');
   const [interests, setInterests] = useState('');
-  
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState(null);
-  
   const [scriptPreview, setScriptPreview] = useState(null);
   const [jobId, setJobId] = useState(null);
   const [generatedPodcast, setGeneratedPodcast] = useState(null);
-  
   const pollingIntervalRef = useRef(null);
-
-  const voiceOptions = {
-      'Friendly Male': '21m00Tcm4TlvDq8ikWAM',
-      'Calm Female': '29vD33N1CtxCmqQRPO9B',
-      'Energetic Narrator': 'MF3mGyEYCl7XYWbV9V6O',
-      'Wise Storyteller': '5Q0t7uMcjvnagumLfvZi'
-  };
-
-  // --- MOCK AUTH FUNCTIONS ---
-  const handleLogin = () => {
-    console.log("Simulating user login.");
-    setUser({ email: 'parent@example.com', id: 'user-123' });
-    setTokenBalance(3); 
-  };
-  const handleLogout = () => {
-    setUser(null);
-    setTokenBalance(0);
-    setGeneratedPodcast(null);
-    setScriptPreview(null);
-    setJobId(null);
-  };
   
-  // --- API ENDPOINT CONFIGURATION ---
+  const voiceOptions = {
+      'Friendly Male': 'pNInz6obpgDQGcFmaJgB',      // Adam
+      'Calm Female': '21m00Tcm4TlvDq8ikWAM',        // Rachel
+      'Energetic Narrator': 'ErXwobaYiN019PkySvjV', // Antoni
+      'Wise Storyteller': 'VR6AewLTigWG4xSOh_u2',   // Arnold
+      'Piotr Fronczewki': 'T5l58N8RNz5DKoClpKIJ', // Piotr
+      'Sir Laurence Oliver': 'V9fdGZs6AiHI4uyiAiza', // Sir Laurence Oliver
+      'Female Villain': 'flHkNRp1BlvT73UL6gyz', // Jessica Anne Bogart
+      'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', // Grandpa Spud Oxley
+      'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' //Austin
+  };
   const API_BASE_URL = 'https://if0q6p8bt4.execute-api.us-east-2.amazonaws.com/Prod';
 
-  // --- POLLING FUNCTION FOR JOB STATUS ---
+  useEffect(() => {
+    if (user?.userId) {
+      console.log("User logged in:", user.userId);
+    }
+  }, [user]);
+  
   useEffect(() => {
     if (jobId) {
         pollingIntervalRef.current = setInterval(async () => {
@@ -172,7 +210,7 @@ export default function App() {
                 setError("An error occurred while checking the podcast status.");
                 setIsLoading(false);
             }
-        }, 7000); // Check every 7 seconds
+        }, 7000);
     }
 
     return () => {
@@ -182,10 +220,8 @@ export default function App() {
     };
   }, [jobId, childName, API_BASE_URL]);
 
-  // --- WORKFLOW STEP 1: GENERATE SCRIPT FOR PREVIEW ---
   const handleGenerateScript = async (e) => {
     e.preventDefault();
-    if (!user) { setError("Please log in to create a podcast."); return; }
     if (tokenBalance < 1) { setError("You need at least 1 token to generate a script."); setShowBuyTokensModal(true); return; }
     if (!topic.trim() || !childName.trim() || !age.trim()) { setError('Please fill out the topic, child\'s name, and age.'); return; }
 
@@ -200,7 +236,7 @@ export default function App() {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic, childName, age, gradeLevel, interests, userId: user.id })
+            body: JSON.stringify({ topic, childName, age, gradeLevel, interests, userId: user.userId })
         });
         const responseData = await response.json();
         if (!response.ok) throw new Error(responseData.message || "API Error");
@@ -215,7 +251,6 @@ export default function App() {
     }
   };
 
-  // --- WORKFLOW STEP 2: APPROVE SCRIPT AND CREATE AUDIO JOB ---
   const handleApproveScript = async () => {
     setIsLoading(true);
     setError(null);
@@ -226,15 +261,16 @@ export default function App() {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ script: scriptPreview, voiceId: voiceOptions[voice], userId: user.id })
+            body: JSON.stringify({ script: scriptPreview, voiceId: voiceOptions[voice], userId: user.userId })
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Failed to create job");
 
         setTokenBalance(data.newTokeBalance);
         setScriptPreview(null);
-        setJobId(data.jobId); // This triggers the polling useEffect
+        setJobId(data.jobId);
         setLoadingStep("Your podcast is in the queue...");
+
     } catch (err) {
         console.error("Failed to create audio job:", err);
         setError(err.message);
@@ -243,7 +279,7 @@ export default function App() {
   };
 
   const handleDisapproveScript = () => {
-    setScriptPreview(null); 
+    setScriptPreview(null);
     console.log("Script disapproved. No token was used.");
   };
 
@@ -256,20 +292,17 @@ export default function App() {
                 <MicIcon />
                 <h1 className="ml-1">Podcast-on-the-Fly</h1>
             </div>
-            {user ? (
+            <div className="text-right">
                 <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2 bg-gray-800 px-3 py-1.5 rounded-lg">
                         <TokenIcon />
                         <span className="font-bold text-lg">{tokenBalance}</span>
                         <button onClick={() => setShowBuyTokensModal(true)} className="ml-2 bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold py-1 px-2 rounded-md">+</button>
                     </div>
-                    <button onClick={handleLogout} className="text-gray-400 hover:text-white text-sm">Logout</button>
+                    <button onClick={signOut} className="text-gray-400 hover:text-white text-sm">Sign Out</button>
                 </div>
-            ) : (
-                <button onClick={handleLogin} className="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-lg">
-                    Login / Sign Up
-                </button>
-            )}
+                <p className="text-xs text-gray-400 mt-1">{user?.attributes?.email}</p>
+            </div>
         </header>
 
         <main>
@@ -304,14 +337,27 @@ export default function App() {
                 </div>
                 <div className="grid md:grid-cols-2 gap-6 mb-6">
                     <div><label htmlFor="child-name" className="block mb-2 font-medium text-gray-300">Child's First Name</label><input type="text" id="child-name" value={childName} onChange={e => setChildName(e.target.value)} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="e.g., Alex"/></div>
-                    <div><label htmlFor="age" className="block mb-2 font-medium text-gray-300">Child's Age</label><input type="number" id="age" value={age} min="4" onChange={e => setAge(e.target.value)} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="e.g., 8"/></div>
+                    <div>
+                        <label htmlFor="age" className="block mb-2 font-medium text-gray-300">Child's Age</label>
+                        <input 
+                            type="number" 
+                            id="age" 
+                            value={age} 
+                            min="4" 
+                            onChange={e => setAge(e.target.value)} 
+                            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500" 
+                            placeholder="e.g., 8"
+                            autoComplete="off"
+                        />
+                    </div>
                     <div><label htmlFor="grade-level" className="block mb-2 font-medium text-gray-300">Grade Level</label><select id="grade-level" value={gradeLevel} onChange={e => setGradeLevel(e.target.value)} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500">{["Kindergarten - 1st Grade", "2nd Grade - 3rd Grade", "4th Grade - 5th Grade", "6th Grade - 7th Grade", "8th Grade - 9th Grade", "10th Grade - 11th Grade", "12th Grade+"].map(o => (<option key={o} value={o}>{o}</option>))}</select></div>
                     <div><label htmlFor="interests" className="block mb-2 font-medium text-gray-300">Interests</label><input type="text" id="interests" value={interests} onChange={e => setInterests(e.target.value)} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="e.g., Minecraft, Dragons"/></div>
                 </div>
                 <div className="mb-8">
                     <label htmlFor="voice" className="block mb-2 font-medium text-gray-300">Voice Style</label>
                     <select id="voice" value={voice} onChange={e => setVoice(e.target.value)} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500">
-                        {['Friendly Male', 'Calm Female', 'Energetic Narrator', 'Wise Storyteller'].map(name => (<option key={name} value={name}>{name}</option>))}
+                        {/* **FIX**: Dynamically generate options from the voiceOptions object */}
+                        {Object.keys(voiceOptions).map(name => (<option key={name} value={name}>{name}</option>))}
                     </select>
                 </div>
                 <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-white bg-pink-600 rounded-lg hover:bg-pink-700 disabled:bg-pink-800 disabled:cursor-not-allowed transition-all duration-300 shadow-lg">
@@ -326,7 +372,29 @@ export default function App() {
             {generatedPodcast && (<div className="animate-fade-in-up"><h2 className="text-2xl font-bold text-center mb-4">Your masterpiece is ready!</h2><AudioPlayer podcast={generatedPodcast} /></div>)}
           </div>
         </main>
+        <footer className="text-center mt-12 text-xs text-gray-500 px-4">
+          <p>
+            <strong>Disclaimer:</strong> The content provided is generated by artificial intelligence. 
+            Parents and guardians are advised to review all content for accuracy and appropriateness before sharing with children.
+          </p>
+          <p className="mt-2">
+            © 2025 Podcast-on-the-Fly. All Rights Reserved.
+          </p>
+        </footer>
       </div>
     </div>
   );
 }
+
+// --- NEW, MORE ROBUST AUTHENTICATION WRAPPER ---
+function App() {
+  return (
+    <Authenticator loginMechanisms={['email']}>
+      {({ signOut, user }) => (
+        <PodcastGenerator signOut={signOut} user={user} />
+      )}
+    </Authenticator>
+  );
+}
+
+export default App;
