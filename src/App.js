@@ -334,7 +334,7 @@ function PodcastGenerator({ signOut, user }) {
     setLoadingStep('Submitting your request...');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/create-audio-job`, { // **FIX**: Removed extra period
+        const response = await fetch(`${API_BASE_URL}/create-audio-job`, {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
