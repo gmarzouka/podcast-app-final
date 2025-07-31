@@ -27,6 +27,8 @@ const PlayIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 const PauseIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg> );
 const TokenIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-yellow-400"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2Z"/><path d="M12 6v4"/><path d="m16 10-2 2-2-2"/><path d="M12 18.01v.01"/></svg>);
 const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
+const HistoryIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M12 7v5l4 2"></path></svg>);
+
 
 // --- CHILD COMPONENTS ---
 const AudioPlayer = ({ podcast }) => {
@@ -37,29 +39,38 @@ const AudioPlayer = ({ podcast }) => {
 
     useEffect(() => {
         const audio = audioRef.current;
+        if (!audio) return;
+
         const setAudioData = () => setDuration(audio.duration);
         const setAudioTime = () => setCurrentTime(audio.currentTime);
+        const handleCanPlay = () => {
+             audio.play().then(() => setIsPlaying(true)).catch(e => console.error("Autoplay failed", e));
+        };
+        
+        setIsPlaying(false);
+        setCurrentTime(0);
+
         audio.addEventListener('loadeddata', setAudioData);
         audio.addEventListener('timeupdate', setAudioTime);
-        if (audio.readyState > 0) setAudioData();
+        audio.addEventListener('canplay', handleCanPlay);
+
+        audio.load();
+
         return () => {
             audio.removeEventListener('loadeddata', setAudioData);
             audio.removeEventListener('timeupdate', setAudioTime);
+            audio.removeEventListener('canplay', handleCanPlay);
         };
     }, [podcast.audioUrl]);
 
-    useEffect(() => {
-        if (podcast.audioUrl) {
-            audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.error("Autoplay failed", e));
-        }
-    }, [podcast.audioUrl]);
 
     const togglePlayPause = () => {
-        setIsPlaying(prev => {
-            if (prev) audioRef.current.pause();
-            else audioRef.current.play();
-            return !prev;
-        });
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
     };
 
     const handleSeek = (e) => {
@@ -109,7 +120,7 @@ const BuyTokensModal = ({ setShowModal, setTokenBalance }) => {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-md m-4">
+            <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-lg m-4">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-white">Get More Tokens</h2>
                     <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white"><CloseIcon /></button>
@@ -131,10 +142,43 @@ const BuyTokensModal = ({ setShowModal, setTokenBalance }) => {
     );
 };
 
+const PodcastHistoryModal = ({ setShowModal, history, onPlay }) => {
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-lg m-4">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-white">Your Podcast History</h2>
+                    <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white"><CloseIcon /></button>
+                </div>
+                {history.length > 0 ? (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {history.map((item) => (
+                            <div key={item.jobId} className="w-full flex justify-between items-center p-4 bg-gray-700 rounded-lg">
+                                <div>
+                                    <p className="font-bold text-white">{item.title || "A Podcast"}</p>
+                                    <p className="text-xs text-gray-400">Created: {new Date(item.createdAt).toLocaleString()}</p>
+                                </div>
+                                <button onClick={() => onPlay(item)} className="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-lg">
+                                    Play
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-400 text-center py-8">You haven't created any podcasts yet.</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
 // --- This is the main application component that renders AFTER a user has logged in ---
 function PodcastGenerator({ signOut, user }) {
-  const [tokenBalance, setTokenBalance] = useState(5);
+  const [tokenBalance, setTokenBalance] = useState(0); // Start at 0 until fetched
   const [showBuyTokensModal, setShowBuyTokensModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [podcastHistory, setPodcastHistory] = useState([]);
   const [topic, setTopic] = useState('');
   const [childName, setChildName] = useState('');
   const [age, setAge] = useState('');
@@ -151,23 +195,51 @@ function PodcastGenerator({ signOut, user }) {
   
   const voiceOptions = {
       'Friendly Male': 'pNInz6obpgDQGcFmaJgB',      // Adam
-      'Calm Female': '21m00Tcm4TlvDq8ikWAM',        // Rachel
-      'Energetic Narrator': 'ErXwobaYiN019PkySvjV', // Antoni
-      'Wise Storyteller': 'VR6AewLTigWG4xSOh_u2',   // Arnold
-      'Piotr Fronczewki': 'T5l58N8RNz5DKoClpKIJ', // Piotr
-      'Sir Laurence Oliver': 'V9fdGZs6AiHI4uyiAiza', // Sir Laurence Oliver
-      'Female Villain': 'flHkNRp1BlvT73UL6gyz', // Jessica Anne Bogart
-      'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', // Grandpa Spud Oxley
-      'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' //Austin
+	  'Calm Female': '21m00Tcm4TlvDq8ikWAM',        // Rachel
+	  'Energetic Narrator': 'ErXwobaYiN019PkySvjV', // Antoni
+	  'Female Villain': 'flHkNRp1BlvT73UL6gyz', // Jessica Anne Bogart
+	  'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', // Grandpa Spud Oxley
+	  'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' //Austin
+
   };
   const API_BASE_URL = 'https://if0q6p8bt4.execute-api.us-east-2.amazonaws.com/Prod';
 
+  // Fetch user profile and history when the user logs in
   useEffect(() => {
+    const fetchUserData = async (userId) => {
+        console.log("Fetching all user data for:", userId);
+        setError(null);
+        try {
+            // Fetch user profile (including token balance)
+            const profileResponse = await fetch(`${API_BASE_URL}/get-user-profile`, {
+                method: 'POST', mode: 'cors', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            const profileData = await profileResponse.json();
+            if (!profileResponse.ok) throw new Error(profileData.message || "Failed to fetch user profile");
+            setTokenBalance(profileData.tokenBalance);
+
+            // Fetch podcast history
+            const historyResponse = await fetch(`${API_BASE_URL}/get-history`, {
+                method: 'POST', mode: 'cors', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            const historyData = await historyResponse.json();
+            if (!historyResponse.ok) throw new Error(historyData.message || "Failed to fetch history");
+            setPodcastHistory(historyData);
+
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+            setError("Could not load your user data. Please try refreshing the page.");
+        }
+    };
+
     if (user?.userId) {
-      console.log("User logged in:", user.userId);
+      fetchUserData(user.userId);
     }
-  }, [user]);
+  }, [user?.userId]);
   
+  // Polling function for job status
   useEffect(() => {
     if (jobId) {
         pollingIntervalRef.current = setInterval(async () => {
@@ -186,7 +258,7 @@ function PodcastGenerator({ signOut, user }) {
                     console.log("Job complete!", data);
                     clearInterval(pollingIntervalRef.current);
                     setGeneratedPodcast({
-                        title: `A Special Podcast for ${childName}`,
+                        title: data.title, // Use title from job data
                         script: data.script,
                         audioUrl: data.audioUrl
                     });
@@ -218,7 +290,12 @@ function PodcastGenerator({ signOut, user }) {
             clearInterval(pollingIntervalRef.current);
         }
     };
-  }, [jobId, childName, API_BASE_URL]);
+  }, [jobId, API_BASE_URL]);
+
+  const handlePlayFromHistory = (podcast) => {
+    setGeneratedPodcast(podcast);
+    setShowHistoryModal(false);
+  };
 
   const handleGenerateScript = async (e) => {
     e.preventDefault();
@@ -257,16 +334,16 @@ function PodcastGenerator({ signOut, user }) {
     setLoadingStep('Submitting your request...');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/create-audio-job`, {
+        const response = await fetch(`${API_BASE_URL}/create-audio-job`, { // **FIX**: Removed extra period
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ script: scriptPreview, voiceId: voiceOptions[voice], userId: user.userId })
+            body: JSON.stringify({ script: scriptPreview, voiceId: voiceOptions[voice], userId: user.userId, topic: topic })
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Failed to create job");
 
-        setTokenBalance(data.newTokeBalance);
+        setTokenBalance(prev => prev - 1);
         setScriptPreview(null);
         setJobId(data.jobId);
         setLoadingStep("Your podcast is in the queue...");
@@ -286,14 +363,19 @@ function PodcastGenerator({ signOut, user }) {
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans flex items-center justify-center p-4">
       {showBuyTokensModal && <BuyTokensModal setShowModal={setShowBuyTokensModal} setTokenBalance={setTokenBalance} />}
+      {showHistoryModal && <PodcastHistoryModal setShowModal={setShowHistoryModal} history={podcastHistory} onPlay={handlePlayFromHistory} />}
       <div className="w-full max-w-2xl mx-auto">
         <header className="flex justify-between items-center mb-10">
             <div className="flex items-center text-3xl font-bold text-white">
                 <MicIcon />
-                <h1 className="ml-1">Podcast-on-the-Fly</h1>
+                <h1 className="ml-1">HootPODS</h1>
             </div>
             <div className="text-right">
                 <div className="flex items-center space-x-4">
+                    <button onClick={() => setShowHistoryModal(true)} className="text-gray-400 hover:text-white flex items-center">
+                        <HistoryIcon />
+                        <span className="ml-1.5">My Podcasts</span>
+                    </button>
                     <div className="flex items-center space-x-2 bg-gray-800 px-3 py-1.5 rounded-lg">
                         <TokenIcon />
                         <span className="font-bold text-lg">{tokenBalance}</span>
@@ -356,7 +438,6 @@ function PodcastGenerator({ signOut, user }) {
                 <div className="mb-8">
                     <label htmlFor="voice" className="block mb-2 font-medium text-gray-300">Voice Style</label>
                     <select id="voice" value={voice} onChange={e => setVoice(e.target.value)} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500">
-                        {/* **FIX**: Dynamically generate options from the voiceOptions object */}
                         {Object.keys(voiceOptions).map(name => (<option key={name} value={name}>{name}</option>))}
                     </select>
                 </div>
@@ -372,13 +453,14 @@ function PodcastGenerator({ signOut, user }) {
             {generatedPodcast && (<div className="animate-fade-in-up"><h2 className="text-2xl font-bold text-center mb-4">Your masterpiece is ready!</h2><AudioPlayer podcast={generatedPodcast} /></div>)}
           </div>
         </main>
+        
         <footer className="text-center mt-12 text-xs text-gray-500 px-4">
           <p>
             <strong>Disclaimer:</strong> The content provided is generated by artificial intelligence. 
             Parents and guardians are advised to review all content for accuracy and appropriateness before sharing with children.
           </p>
           <p className="mt-2">
-            © 2025 Podcast-on-the-Fly. All Rights Reserved.
+            © 2025 HootPODS. All Rights Reserved.
           </p>
         </footer>
       </div>
