@@ -21,9 +21,9 @@ code {
 [data-amplify-authenticator] {
   --amplify-colors-background-primary: #1F2937; /* bg-gray-800 */
   --amplify-colors-background-secondary: #374151; /* bg-gray-700 */
-  --amplify-colors-brand-primary-10: #db2777; /* pink-600 */
-  --amplify-colors-brand-primary-80: #be185d; /* pink-700 */
-  --amplify-colors-brand-primary-90: #9d174d; /* pink-800 */
+  --amplify-colors-brand-primary-10: #e28b07; /* pink-600 */
+  --amplify-colors-brand-primary-80: #e28b07; /* pink-700 */
+  --amplify-colors-brand-primary-90: #e28b07; /* pink-800 */
   --amplify-colors-font-primary: #F9FAFB; /* gray-50 */
   --amplify-colors-font-secondary: #D1D5DB; /* gray-300 */
   --amplify-colors-font-tertiary: #9CA3AF; /* gray-400 */
