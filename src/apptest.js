@@ -463,7 +463,7 @@ function PodcastGenerator({ signOut, user }) {
                         {Object.keys(voiceOptions).map(name => (<option key={name} value={name}>{name}</option>))}
                     </select>
                 </div>
-                <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-white bg-pink-600 rounded-lg hover:bg-pink-700 disabled:bg-pink-800 disabled:cursor-not-allowed transition-all duration-300 shadow-lg">
+                <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-black bg-pink-600 rounded-lg hover:bg-pink-700 disabled:bg-pink-800 disabled:cursor-not-allowed transition-all duration-300 shadow-lg">
                     {isLoading ? ( <> <LoaderIcon /> <span>{loadingStep}</span> </> ) : ( '✨ Generate Script Preview ✨' )}
                 </button>
               </form>
