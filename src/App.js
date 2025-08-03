@@ -38,6 +38,7 @@ const TokenIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
 const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
 const ChevronDownIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>);
+const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>);
 
 // --- CENTRALIZED API CALL FUNCTION ---
 const apiCall = async (method, path, body) => {
@@ -63,23 +64,44 @@ const apiCall = async (method, path, body) => {
 };
 
 // --- CHILD MANAGEMENT MODAL COMPONENT ---
+// --- CHILD MANAGEMENT MODAL COMPONENT ---
 const ChildManagementModal = ({ isOpen, onClose, children, setChildren, userId }) => {
+    // --- STATE ---
     const [name, setName] = useState('');
     const [birthdate, setBirthdate] = useState('');
     const [interests, setInterests] = useState('');
-    const handleSaveChild = async (e) => {
+    const [editingChildId, setEditingChildId] = useState(null); // New state to track which child is being edited
+
+    // --- HANDLERS ---
+    const handleSaveOrUpdateChild = async (e) => {
         e.preventDefault();
         if (!name || !birthdate) return alert("Name and birthdate are required.");
-        const newChild = { id: `child_${Date.now()}`, name, birthdate, interests: interests.split(',').map(i => i.trim()).filter(Boolean) };
-        const updatedChildren = [...children, newChild];
+
+        let updatedChildren;
+
+        if (editingChildId) {
+            // This is an UPDATE operation
+            updatedChildren = children.map(child =>
+                child.id === editingChildId
+                    ? { ...child, name, birthdate, interests: interests.split(',').map(i => i.trim()).filter(Boolean) }
+                    : child
+            );
+        } else {
+            // This is a CREATE (add new) operation
+            const newChild = { id: `child_${Date.now()}`, name, birthdate, interests: interests.split(',').map(i => i.trim()).filter(Boolean) };
+            updatedChildren = [...children, newChild];
+        }
+
         try {
+            // API call to save the entire updated list of children
             await apiCall('post', '/update-user-profile', { userId, children: updatedChildren });
             setChildren(updatedChildren);
-            setName(''); setBirthdate(''); setInterests('');
+            resetFormAndExitEditMode(); // Reset the form after successful save/update
         } catch (error) {
             alert(`Error saving child: ${error.message}`);
         }
     };
+
     const handleDeleteChild = async (childId) => {
         if (!window.confirm("Are you sure you want to remove this child's profile?")) return;
         const updatedChildren = children.filter(c => c.id !== childId);
@@ -90,21 +112,55 @@ const ChildManagementModal = ({ isOpen, onClose, children, setChildren, userId }
             alert(`Error deleting child: ${error.message}`);
         }
     };
+    
+    // New function to handle populating the form for an edit
+    const startEditing = (child) => {
+        setEditingChildId(child.id);
+        setName(child.name);
+        setBirthdate(child.birthdate);
+        setInterests(child.interests.join(', ')); // Convert array back to string for the input field
+    };
+    
+    // New function to clear the form and exit edit mode
+    const resetFormAndExitEditMode = () => {
+        setEditingChildId(null);
+        setName('');
+        setBirthdate('');
+        setInterests('');
+    };
+
     if (!isOpen) return null;
+
+    // --- JSX ---
     return (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-gray-800 text-white rounded-lg p-6 w-full max-w-lg shadow-xl">
                 <h2 className="text-2xl font-bold mb-4">Manage Children</h2>
-                <form onSubmit={handleSaveChild} className="bg-gray-700 p-4 rounded-lg mb-6">
-                    <h3 className="text-lg font-semibold mb-2">Add a New Child</h3>
+                
+                {/* The form now handles both adding and updating */}
+                <form onSubmit={handleSaveOrUpdateChild} className="bg-gray-700 p-4 rounded-lg mb-6">
+                    <h3 className="text-lg font-semibold mb-2">
+                        {editingChildId ? "Edit Child's Profile" : "Add a New Child"}
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Child's Name" className="bg-gray-800 border border-gray-600 rounded p-2 focus:ring-blue-500 focus:border-blue-500"/>
                         <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} className="bg-gray-800 border border-gray-600 rounded p-2 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
                     <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Interests (e.g., dinosaurs, space, animals)" className="w-full mt-4 bg-gray-800 border border-gray-600 rounded p-2 focus:ring-blue-500 focus:border-blue-500"/>
-                     <p className="text-xs text-gray-400 mt-1">Separate interests with a comma.</p>
-                    <button type="submit" className="mt-4 w-full bg-yellow-600 hover:bg-green-800 rounded-md px-4 py-2 font-semibold">Save Child</button>
+                    <p className="text-xs text-gray-400 mt-1">Separate interests with a comma.</p>
+                    <div className="flex items-center gap-4 mt-4">
+                        <button type="submit" className="w-full bg-yellow-600 hover:bg-green-800 rounded-md px-4 py-2 font-semibold">
+                            {editingChildId ? 'Update Child' : 'Save Child'}
+                        </button>
+                        {editingChildId && (
+                            <button type="button" onClick={resetFormAndExitEditMode} className="w-full bg-gray-600 hover:bg-gray-500 rounded-md px-4 py-2 font-semibold">
+                                Cancel Edit
+                            </button>
+                        )}
+                    </div>
                 </form>
+
+                {/* List of saved children */}
                 <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                     {children.map(child => (
                         <div key={child.id} className="bg-gray-700 p-3 rounded-md flex justify-between items-center">
@@ -113,11 +169,15 @@ const ChildManagementModal = ({ isOpen, onClose, children, setChildren, userId }
                                <p className="text-sm text-gray-400">Born: {child.birthdate}</p>
                                <p className="text-sm text-gray-400">Interests: {child.interests.join(', ')}</p>
                             </div>
-                            <button onClick={() => handleDeleteChild(child.id)} className="text-red-500 hover:text-red-400 font-semibold">Remove</button>
+                            <div className="flex flex-col items-end gap-2">
+                                <button onClick={() => startEditing(child)} className="text-blue-400 hover:text-blue-300 font-semibold text-sm">Edit</button>
+                                <button onClick={() => handleDeleteChild(child.id)} className="text-red-500 hover:text-red-400 font-semibold text-sm">Remove</button>
+                            </div>
                         </div>
                     ))}
                     {children.length === 0 && <p className="text-gray-400 text-center">No children saved yet.</p>}
                 </div>
+
                 <button onClick={onClose} className="mt-6 w-full bg-gray-600 hover:bg-gray-500 rounded-md px-4 py-2 font-semibold">Close</button>
             </div>
         </div>
@@ -203,8 +263,9 @@ const BuyTokensModal = ({ setShowModal, user }) => {
 };
 
 // --- PODCAST LIST ITEM COMPONENT ---
-const PodcastListItem = ({ job, isPlaying, onPlayPause, currentTrackUrl, currentTime, duration, onSeek }) => {
+const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, currentTrackUrl, currentTime, duration, onSeek }) => {
     const isActive = currentTrackUrl === job.audioUrl;
+
     return (
         <div className={`bg-gray-700 rounded-lg p-4 transition-all ${isActive ? 'ring-2 ring-yellow-500' : ''}`}>
             <div className="flex items-center justify-between">
@@ -212,10 +273,18 @@ const PodcastListItem = ({ job, isPlaying, onPlayPause, currentTrackUrl, current
                     <p className="font-bold text-lg truncate">{job.title}</p>
                     <p className="text-sm text-gray-400">{new Date(job.createdAt).toLocaleString()}</p>
                 </div>
-                <button onClick={() => onPlayPause(job)} className="bg-yellow-600 hover:bg-green-800 rounded-full p-3 flex-shrink-0 ml-4">
-                    {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
-                </button>
+                {/* --- START: This is the only part that changes --- */}
+                <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                    <button onClick={() => onPlayPause(job)} className="bg-yellow-600 hover:bg-green-800 rounded-full p-3">
+                        {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
+                    </button>
+                    <button onClick={() => onDelete(job.jobId)} title="Delete Podcast" className="text-gray-400 hover:text-red-500 p-2 rounded-full transition-colors">
+                        <TrashIcon />
+                    </button>
+                </div>
+                 {/* --- END: Change ends here --- */}
             </div>
+             {/* THIS PART IS IDENTICAL AND IS NOT REMOVED */}
             {isActive && (
                 <div className="mt-4 pt-4 border-t border-gray-600">
                     <div className="flex items-center gap-2 text-sm">
@@ -308,6 +377,19 @@ const PodcastGenerator = ({ signOut, user }) => {
     const handleLoadedMetadata = () => setDuration(audioRef.current.duration);
     const handleSeek = (e) => { audioRef.current.currentTime = e.target.value; setCurrentTime(e.target.value); };
 
+    // New delete handler
+const handleDeletePodcast = async (jobIdToDelete) => {
+    if (!window.confirm("Are you sure you want to permanently delete this podcast? This cannot be undone.")) {
+        return;
+    }
+    try {
+        await apiCall('post', '/delete-podcast', { userId, jobId: jobIdToDelete });
+        // Remove from local state to update UI instantly
+        setHistory(currentHistory => currentHistory.filter(job => job.jobId !== jobIdToDelete));
+    } catch (err) {
+        setError(`Failed to delete podcast: ${err.message}`);
+    }
+};
     const sortedHistory = [...history].filter(job => job.status && job.status.toLowerCase() === 'complete').sort((a, b) => { if (sortOrder === 'topic') { return (a.title || '').localeCompare(b.title || ''); } return new Date(b.createdAt) - new Date(a.createdAt); });
 
     return (
@@ -331,7 +413,7 @@ const PodcastGenerator = ({ signOut, user }) => {
                     </div>
                     <div className="bg-gray-800 rounded-xl shadow-lg">
                         <button onClick={() => setIsLibraryOpen(!isLibraryOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Your Podcast Library</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isLibraryOpen ? 'rotate-180' : ''}`} /> </button>
-                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-gray-400">Your library is empty.</p>}</div>)} </div> )}
+                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} onDelete={handleDeletePodcast} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-gray-400">Your library is empty.</p>}</div>)} </div> )}
                     </div>
                 </div>
             </main>
