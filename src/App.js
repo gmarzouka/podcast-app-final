@@ -623,14 +623,16 @@ const Login = () => {
             return <p className="text-sm text-text-muted mt-2 text-center">First name is optional.</p>;
         }
     }
-}} services={{
-        async handleSignUp(formData) {
-            let { username, password, attributes } = formData;
-            if (attributes.given_name) {
-                attributes.given_name = attributes.given_name.charAt(0).toUpperCase() + attributes.given_name.slice(1);
-            }
-            return signUp({ username, password, options: { userAttributes: attributes } });
-        },
+}}services={{
+    async handleSignUp(formData) {
+        let { username, password, attributes } = formData;
+        // This now safely checks if attributes and given_name exist before trying to modify them.
+        if (attributes && attributes.given_name) {
+            attributes.given_name = attributes.given_name.charAt(0).toUpperCase() + attributes.given_name.slice(1);
+        }
+        return signUp({ username, password, options: { userAttributes: attributes } });
+    },
+}} />
     }} /> </div> </div> </div> );
 };
 function App() {
