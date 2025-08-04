@@ -34,7 +34,7 @@ const LoaderIcon = ({ className = "h-5 w-5 mr-3" }) => (<svg xmlns="http://www.w
 const PlayIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>);
 const PauseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>);
 const HootIcon = ({ className = "h-6 w-6 inline-block" }) => (<img src="/images/IMG_4365.png" alt="Hoot Token" className={className} />);
-const TokenIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9.5c.83 0 1.5-.67 1.5-1.5S10.83 7.5 10 7.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 7.5 14 7.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm-4 4c1.67 0 3-1.33 3-3h-6c0 1.67 1.33 3 3 3z"></path></svg>);
+const TokenIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9.5c.83 0 1.5-.67 1.5-1.5S10.83 7.5 10 7.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 7.5 14 7.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm-4 4c1.67 0 3-1.33 3-3h-6c0 1.67 1.33 3 3 3z"></path></svg>);
 const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
 const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
 const ChevronDownIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>);
@@ -135,22 +135,22 @@ const ChildManagementModal = ({ isOpen, onClose, children, setChildren, userId }
     // --- JSX ---
     return (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-            <div className="bg-gray-800 text-white rounded-lg p-6 w-full max-w-lg shadow-xl">
+            <div className="bg-surface text-text-main rounded-lg p-6 w-full max-w-lg shadow-xl">
                 <h2 className="text-2xl font-bold mb-4">Manage Children</h2>
                 
                 {/* The form now handles both adding and updating */}
-                <form onSubmit={handleSaveOrUpdateChild} className="bg-gray-700 p-4 rounded-lg mb-6">
+                <form onSubmit={handleSaveOrUpdateChild} className="bg-muted p-4 rounded-lg mb-6">
                     <h3 className="text-lg font-semibold mb-2">
                         {editingChildId ? "Edit Child's Profile" : "Add a New Child"}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Child's Name" className="bg-gray-800 border border-gray-600 rounded p-2 focus:ring-blue-500 focus:border-blue-500"/>
-                        <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} className="bg-gray-800 border border-gray-600 rounded p-2 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Child's Name" className="bg-surface border border-muted rounded p-2 focus:ring-primary focus:border-primary"/>
+                        <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} className="bg-surface border border-muted rounded p-2 focus:ring-primary focus:border-primary"/>
                     </div>
-                    <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Interests (e.g., dinosaurs, space, animals)" className="w-full mt-4 bg-gray-800 border border-gray-600 rounded p-2 focus:ring-blue-500 focus:border-blue-500"/>
-                    <p className="text-xs text-gray-400 mt-1">Separate interests with a comma.</p>
+                    <input type="text" value={interests} onChange={e => setInterests(e.target.value)} placeholder="Interests (e.g., dinosaurs, space, animals)" className="w-full mt-4 bg-surface border border-muted rounded p-2 focus:ring-primary focus:border-primary"/>
+                    <p className="text-xs text-text-muted mt-1">Separate interests with a comma.</p>
                     <div className="flex items-center gap-4 mt-4">
-                        <button type="submit" className="w-full bg-yellow-600 hover:bg-green-800 rounded-md px-4 py-2 font-semibold">
+                        <button type="submit" className="w-full bg-primary hover:bg-primary-hover rounded-md px-4 py-2 font-semibold">
                             {editingChildId ? 'Update Child' : 'Save Child'}
                         </button>
                         {editingChildId && (
@@ -164,11 +164,11 @@ const ChildManagementModal = ({ isOpen, onClose, children, setChildren, userId }
                 {/* List of saved children */}
                 <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                     {children.map(child => (
-                        <div key={child.id} className="bg-gray-700 p-3 rounded-md flex justify-between items-center">
+                        <div key={child.id} className="bg-muted p-3 rounded-md flex justify-between items-center">
                             <div>
                                <p className="font-bold">{child.name}</p>
-                               <p className="text-sm text-gray-400">Born: {child.birthdate}</p>
-                               <p className="text-sm text-gray-400">Interests: {child.interests.join(', ')}</p>
+                               <p className="text-sm text-text-muted">Born: {child.birthdate}</p>
+                               <p className="text-sm text-text-muted">Interests: {child.interests.join(', ')}</p>
                             </div>
                             <div className="flex flex-col items-end gap-2">
                                 <button onClick={() => startEditing(child)} className="text-blue-400 hover:text-blue-300 font-semibold text-sm">Edit</button>
@@ -176,7 +176,7 @@ const ChildManagementModal = ({ isOpen, onClose, children, setChildren, userId }
                             </div>
                         </div>
                     ))}
-                    {children.length === 0 && <p className="text-gray-400 text-center">No children saved yet.</p>}
+                    {children.length === 0 && <p className="text-text-muted text-center">No children saved yet.</p>}
                 </div>
 
                 <button onClick={onClose} className="mt-6 w-full bg-gray-600 hover:bg-gray-500 rounded-md px-4 py-2 font-semibold">Close</button>
@@ -194,16 +194,16 @@ const ChildSelector = ({ children, selectedChildren, setSelectedChildren }) => {
         setSelectedChildren(Array.from(newSelection));
     };
     return (
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-            <label className="block text-lg font-semibold text-white mb-2">Who is this podcast for?</label>
+        <div className="bg-surface border border-muted rounded-lg p-4">
+            <label className="block text-lg font-semibold text-text-main mb-2">Who is this podcast for?</label>
             <div className="space-y-2">
                 {children.map(child => (
-                    <label key={child.id} className="flex items-center space-x-3 p-3 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600">
-                        <input type="checkbox" checked={selectedChildren.includes(child.id)} onChange={() => handleSelect(child.id)} className="h-5 w-5 rounded bg-gray-900 border-gray-600 text-blue-600 focus:ring-blue-500"/>
-                        <span className="text-white font-medium">{child.name}</span>
+                    <label key={child.id} className="flex items-center space-x-3 p-3 bg-muted rounded-md cursor-pointer hover:bg-gray-600">
+                        <input type="checkbox" checked={selectedChildren.includes(child.id)} onChange={() => handleSelect(child.id)} className="h-5 w-5 rounded bg-background border-muted text-blue-600 focus:ring-primary"/>
+                        <span className="text-text-main font-medium">{child.name}</span>
                     </label>
                 ))}
-                 {children.length === 0 && <p className="text-gray-400">Please add a child profile via the "Manage Children" button.</p>}
+                 {children.length === 0 && <p className="text-text-muted">Please add a child profile via the "Manage Children" button.</p>}
             </div>
         </div>
     );
@@ -233,26 +233,26 @@ const BuyTokensModal = ({ setShowModal, user }) => {
     };
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-lg m-4">
+            <div className="bg-surface rounded-2xl shadow-2xl border border-muted p-8 w-full max-w-lg m-4">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-white">Get More Hoots</h2>
-                    {!isPurchasing && (<button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white"><CloseIcon /></button>)}
+                    <h2 className="text-2xl font-bold text-text-main">Get More Hoots</h2>
+                    {!isPurchasing && (<button onClick={() => setShowModal(false)} className="text-text-muted hover:text-text-main"><CloseIcon /></button>)}
                 </div>
-                <p className="text-gray-400 mb-6">Each Hoot lets you create one magical audio podcast.</p>
+                <p className="text-text-muted mb-6">Each Hoot lets you create one magical audio podcast.</p>
                 <div className="space-y-4">
                     {isPurchasing ? (
                         <div className="text-center py-10">
-                            <LoaderIcon className="h-10 w-10 mx-auto text-[#e28b07]" />
+                            <LoaderIcon className="h-10 w-10 mx-auto text-accent-alt" />
                             <p className="mt-4">Redirecting to our secure payment processor...</p>
                         </div>
                     ) : (
                         tokenPacks.map(pack => (
-                            <button key={pack.priceId} onClick={() => handlePurchase(pack.priceId)} className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                            <button key={pack.priceId} onClick={() => handlePurchase(pack.priceId)} className="w-full flex justify-between items-center p-4 bg-muted hover:bg-gray-600 rounded-lg transition-colors">
                                 <div className="flex items-center">
                                     <TokenIcon />
                                     <span className="ml-3 font-bold text-lg">{pack.amount} Hoots</span>
                                 </div>
-                                <span className="text-lg font-bold text-[#e28b07]">${pack.price.toFixed(2)}</span>
+                                <span className="text-lg font-bold text-accent-alt">${pack.price.toFixed(2)}</span>
                             </button>
                         ))
                     )}
@@ -268,32 +268,32 @@ const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, curre
     const isActive = currentTrackUrl === job.audioUrl;
 
     return (
-        <div className={`bg-gray-700 rounded-lg p-4 transition-all ${isActive ? 'ring-2 ring-yellow-500' : ''}`}>
+        <div className={`bg-muted rounded-lg p-4 transition-all ${isActive ? 'ring-2 ring-accent' : ''}`}>
             <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                     <p className="font-bold text-lg truncate">{job.title}</p>
-                    <p className="text-sm text-gray-400">{new Date(job.createdAt).toLocaleString()}</p>
+                    <p className="text-sm text-text-muted">{new Date(job.createdAt).toLocaleString()}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0 ml-4">
                     {/* Share Button (New) */}
-                    <button onClick={() => onShare(job)} title="Share Podcast" className="text-gray-400 hover:text-blue-400 p-2 rounded-full transition-colors">
+                    <button onClick={() => onShare(job)} title="Share Podcast" className="text-text-muted hover:text-blue-400 p-2 rounded-full transition-colors">
                         <ShareIcon />
                     </button>
                     {/* Delete Button */}
-                    <button onClick={() => onDelete(job.jobId)} title="Delete Podcast" className="text-gray-400 hover:text-red-500 p-2 rounded-full transition-colors">
+                    <button onClick={() => onDelete(job.jobId)} title="Delete Podcast" className="text-text-muted hover:text-red-500 p-2 rounded-full transition-colors">
                         <TrashIcon />
                     </button>
                     {/* Play/Pause Button */}
-                    <button onClick={() => onPlayPause(job)} className="bg-yellow-600 hover:bg-green-800 rounded-full p-3">
+                    <button onClick={() => onPlayPause(job)} className="bg-primary hover:bg-primary-hover rounded-full p-3">
                         {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
                     </button>
                 </div>
             </div>
             {isActive && (
-                <div className="mt-4 pt-4 border-t border-gray-600">
+                <div className="mt-4 pt-4 border-t border-muted">
                     <div className="flex items-center gap-2 text-sm">
                         <span>{formatTime(currentTime)}</span>
-                        <input type="range" min="0" max={duration} value={currentTime} onChange={onSeek} className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-yellow-500"/>
+                        <input type="range" min="0" max={duration} value={currentTime} onChange={onSeek} className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-accent"/>
                         <span>{formatTime(duration)}</span>
                     </div>
                 </div>
@@ -302,18 +302,80 @@ const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, curre
     );
 };
 
-// --- NEW: FOOTER COMPONENT ---
-const Footer = () => {
+// --- FOOTER COMPONENT ---
+const Footer = ({ setTheme }) => {
     return (
-        <footer className="w-full bg-gray-900 text-center p-6 mt-auto">
-            <div className="max-w-4xl mx-auto text-xs text-gray-500 space-y-2">
-                <p className="font-bold text-gray-400 mb-1">Disclaimer</p>
+        <footer className="w-full bg-background text-center p-6 mt-auto">
+            <div className="max-w-4xl mx-auto text-xs text-text-muted space-y-2">
+                <p className="font-bold text-text-muted mb-1">Disclaimer</p>
                 <p>
                     The content of these podcasts is generated by artificial intelligence. We strongly advise parents to review each script for accuracy and appropriateness before sharing it with children. All content is provided "as is" without warranty of any kind. By using HootPODS, you agree that its creators are not liable for any claims or damages arising from the generated content.
                 </p>
+                
+                {/* --- THEME SWITCHER BUTTONS --- */}
+                <div className="pt-4 flex justify-center items-center gap-4">
+                    <span className="text-sm font-semibold">Change Theme:</span>
+                    <span className="text-sm font">Dark Themes:</span>
+                    <button onClick={() => setTheme('default')} title="Yellow Theme" className="h-6 w-6 bg-yellow-600 rounded-full border-2 border-surface focus:outline-none focus:ring-2 focus:ring-accent"></button>
+                    <button onClick={() => setTheme('ocean')} title="Ocean Theme" className="h-6 w-6 bg-blue-500 rounded-full border-2 border-surface focus:outline-none focus:ring-2 focus:ring-blue-400"></button>
+                    <button onClick={() => setTheme('forest')} title="Forest Theme" className="h-6 w-6 bg-green-600 rounded-full border-2 border-surface focus:outline-none focus:ring-2 focus:ring-green-400"></button>
+                <span className="text-sm font">Light Themes:</span>
+                 <button onClick={() => setTheme('light')} title="Light Theme" className="h-6 w-6 bg-white rounded-full border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"></button>
+                </div>
             </div>
         </footer>
     );
+};
+// --- THEME DEFINITIONS (MOVED HERE) ---
+const themes = {
+    default: {
+        '--color-primary': '202 138 4',      /* yellow-600 */
+        '--color-primary-hover': '22 101 52', /* green-800 */
+        '--color-accent': '234 179 8',       /* yellow-500 */
+        '--color-accent-alt': '226 139 7',    /* custom orange #e28b07 */
+        '--color-background': '17 24 39',      /* gray-900 */
+        '--color-surface': '31 41 55',      /* gray-800 */
+        '--color-muted': '55 65 81',        /* gray-700 */
+        '--color-text-main': '243 244 246',   /* gray-100 */
+        '--color-text-muted': '156 163 175',  /* gray-400 */
+        '--color-border': '107 114 128',     /* gray-500 */
+    },
+    ocean: {
+        '--color-primary': '59 130 246',     /* blue-500 */
+        '--color-primary-hover': '37 99 235', /* blue-600 */
+        '--color-accent': '96 165 250',      /* blue-400 */
+        '--color-accent-alt': '226 139 7',    /* custom orange #e28b07 */
+        '--color-background': '17 24 39',      /* gray-900 */
+        '--color-surface': '31 41 55',      /* gray-800 */
+        '--color-muted': '55 65 81',        /* gray-700 */
+        '--color-text-main': '243 244 246',   /* gray-100 */
+        '--color-text-muted': '156 163 175',  /* gray-400 */
+        '--color-border': '107 114 128',     /* gray-500 */
+    },
+    forest: {
+        '--color-primary': '22 163 74',      /* green-600 */
+        '--color-primary-hover': '21 128 61', /* green-700 */
+        '--color-accent': '74 222 128',      /* green-400 */
+        '--color-accent-alt': '226 139 7',    /* custom orange #e28b07 */
+        '--color-background': '17 24 39',      /* gray-900 */
+        '--color-surface': '31 41 55',      /* gray-800 */
+        '--color-muted': '55 65 81',        /* gray-700 */
+        '--color-text-main': '243 244 246',   /* gray-100 */
+        '--color-text-muted': '156 163 175',  /* gray-400 */
+        '--color-border': '107 114 128',     /* gray-500 */
+    },
+    light: {
+        '--color-primary': '37 99 235',      /* blue-600 */
+        '--color-primary-hover': '29 78 216', /* blue-700 */
+        '--color-accent': '59 130 246',      /* blue-500 */
+        '--color-accent-alt': '234 179 8',    /* yellow-500 */
+        '--color-background': '249 250 251', /* gray-50 */
+        '--color-surface': '255 255 255',     /* white */
+        '--color-muted': '229 231 235',      /* gray-200 */
+        '--color-text-main': '17 24 39',      /* gray-900 */
+        '--color-text-muted': '75 85 99',      /* gray-600 */
+        '--color-border': '209 213 219',     /* gray-300 */
+    }
 };
 
 // --- PODCAST GENERATOR (MAIN APP) COMPONENT ---
@@ -345,7 +407,16 @@ const PodcastGenerator = ({ signOut, user }) => {
     const [isCreatorOpen, setIsCreatorOpen] = useState(true);
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const voiceOptions = { 'Friendly Male': 'pNInz6obpgDQGcFmaJgB', 'Calm Female': '21m00Tcm4TlvDq8ikWAM', 'Energetic Narrator': 'ErXwobaYiN019PkySvjV', 'Female Villain': 'flHkNRp1BlvT73UL6gyz', 'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', 'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' };
-
+// --- THEME STATE AND LOGIC ---
+    const [theme, setTheme] = useState('default'); // 'default', 'ocean', 'forest'
+   
+   useEffect(() => {
+    const currentTheme = themes[theme];
+    const root = document.documentElement;
+    Object.keys(currentTheme).forEach(key => {
+        root.style.setProperty(key, currentTheme[key]);
+    });
+}, [theme]); // Dependency array no longer needs themes
     useEffect(() => {
         const fetchUserData = async () => { if (!userId) return; try { const profile = await apiCall('post', '/get-user-profile', { userId }); setHoots(profile.hoots); setFirstName(profile.firstName || 'Friend'); setChildren(profile.children || []); fetchHistory(userId); } catch (err) { setError(`Error fetching user data: ${err.message}`); } };
         fetchUserData();
@@ -461,31 +532,31 @@ const handleSharePodcast = async (job) => {
     const sortedHistory = [...history].filter(job => job.status && job.status.toLowerCase() === 'complete').sort((a, b) => { if (sortOrder === 'topic') { return (a.title || '').localeCompare(b.title || ''); } return new Date(b.createdAt) - new Date(a.createdAt); });
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col">
+        <div className="min-h-screen bg-background text-text-main font-sans flex flex-col">
             <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} className="hidden" />
             <ChildManagementModal isOpen={isChildModalOpen} onClose={() => setIsChildModalOpen(false)} children={children} setChildren={setChildren} userId={userId}/>
-            <header className="bg-gray-800/50 backdrop-blur-sm p-4 sticky top-0 z-10 border-b border-gray-700">
+            <header className="bg-surface/50 backdrop-blur-sm p-4 sticky top-0 z-10 border-b border-muted">
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center text-2xl font-bold text-white"> <HootIcon className="h-10 w-10" /> <h1 className="ml-1">HootPODS</h1> </div>
+                    <div className="flex items-center text-2xl font-bold text-text-main"> <HootIcon className="h-10 w-10" /> <h1 className="ml-1">HootPODS</h1> </div>
                     <div className="hidden md:block text-center"> <h2 className="text-xl">Welcome, {firstName}!</h2> </div>
-                    <div className="flex items-center gap-4"> <div className="bg-gray-700 rounded-full px-4 py-2 flex items-center gap-2"> <HootIcon /> <span className="font-bold text-lg">{hoots}</span> <button onClick={() => setShowBuyTokensModal(true)} className="ml-1 bg-yellow-600 hover:bg-green-800 text-black w-6 h-6 rounded-full flex items-center justify-center transition-transform hover:scale-110"><PlusIcon /></button> </div> <button onClick={signOut} className="bg-yellow-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-full">Sign Out</button> </div>
+                    <div className="flex items-center gap-4"> <div className="bg-muted rounded-full px-4 py-2 flex items-center gap-2"> <HootIcon /> <span className="font-bold text-lg">{hoots}</span> <button onClick={() => setShowBuyTokensModal(true)} className="ml-1 bg-primary hover:bg-primary-hover text-background w-6 h-6 rounded-full flex items-center justify-center transition-transform hover:scale-110"><PlusIcon /></button> </div> <button onClick={signOut} className="bg-primary hover:bg-primary-hover text-text-main font-bold py-2 px-4 rounded-full">Sign Out</button> </div>
                 </div>
                 <div className="md:hidden text-center mt-2"> <h2 className="text-lg">Welcome, {firstName}!</h2> </div>
             </header>
             
             <main className="p-4 md:p-8 max-w-4xl mx-auto w-full flex-grow">
                 <div className="space-y-4">
-                    <div className="bg-gray-800 rounded-xl shadow-lg">
+                    <div className="bg-surface rounded-xl shadow-lg">
                         <button onClick={() => setIsCreatorOpen(!isCreatorOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Create a New Podcast</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isCreatorOpen ? 'rotate-180' : ''}`} /> </button>
-                        {isCreatorOpen && ( <div className="p-6 pt-0 space-y-6"> <form onSubmit={handleGenerateScript} className="space-y-4"> <div className="flex justify-end"> <button type="button" onClick={() => setIsChildModalOpen(true)} className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md">Manage Children</button> </div> <ChildSelector children={children} selectedChildren={selectedChildren} setSelectedChildren={setSelectedChildren} /> <div className="flex items-center"><input id="anonymous-check" type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-blue-600 focus:ring-blue-500"/><label htmlFor="anonymous-check" className="ml-2 block text-sm text-gray-300">Make podcast anonymous</label></div> 
-                        <div><label htmlFor="topic" className="block text-lg font-semibold text-white mb-2">Topic?</label><input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., Why is the sky blue?" className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500"/></div> 
+                        {isCreatorOpen && ( <div className="p-6 pt-0 space-y-6"> <form onSubmit={handleGenerateScript} className="space-y-4"> <div className="flex justify-end"> <button type="button" onClick={() => setIsChildModalOpen(true)} className="bg-primary hover:bg-primary text-text-main font-bold py-2 px-4 rounded-md">Manage Children</button> </div> <ChildSelector children={children} selectedChildren={selectedChildren} setSelectedChildren={setSelectedChildren} /> <div className="flex items-center"><input id="anonymous-check" type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="h-4 w-4 rounded bg-background border-muted text-blue-600 focus:ring-primary"/><label htmlFor="anonymous-check" className="ml-2 block text-sm text-text-muted">Make podcast anonymous</label></div> 
+                        <div><label htmlFor="topic" className="block text-lg font-semibold text-text-main mb-2">Topic?</label><input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., Why is the sky blue?" className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"/></div> 
                         <div>
-    <label htmlFor="gradeLevel" className="block text-lg font-semibold text-white mb-2">Academic Level</label>
+    <label htmlFor="gradeLevel" className="block text-lg font-semibold text-text-main mb-2">Academic Level</label>
     <select 
         id="gradeLevel" 
         value={gradeLevel} 
         onChange={e => setGradeLevel(e.target.value)} 
-        className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"
     >
         <option>Preschool</option>
         <option>Kindergarten</option>
@@ -505,37 +576,37 @@ const handleSharePodcast = async (job) => {
         <option>Adult</option>
     </select>
 </div>
-                        <div><label className="block text-lg font-semibold text-white mb-2">Voice</label><select value={voiceId} onChange={e => setVoiceId(e.target.value)} className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500">{Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}</select></div> <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-white bg-yellow-600 rounded-lg hover:bg-green-800 disabled:bg-gray-500"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-gray-700 pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3> <span className="text-sm text-gray-400">(Don't like the output? No problem, change the topic or question and click "Generate Preview" for a new script. Want to make minor changes? Feel free to click below to edit the script before submitting for audio generation.)</span>
+                        <div><label className="block text-lg font-semibold text-text-main mb-2">Voice</label><select value={voiceId} onChange={e => setVoiceId(e.target.value)} className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary">{Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}</select></div> <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-text-main bg-primary rounded-lg hover:bg-primary-hover disabled:bg-muted"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-muted pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3> <span className="text-sm text-text-muted">(Don't like the output? No problem, change the topic or question and click "Generate Preview" for a new script. Want to make minor changes? Feel free to click below to edit the script before submitting for audio generation.)</span>
                         <textarea 
     value={script} 
     onChange={(e) => setScript(e.target.value)}
-    className="w-full h-64 bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300 focus:ring-yellow-500 focus:border-yellow-500"
-></textarea><button onClick={handleCreateAudio} disabled={isLoading} className="w-full bg-yellow-600 hover:bg-green-800 text-black font-bold py-3 px-4 rounded-lg flex items-center justify-center text-lg disabled:bg-gray-500">{isLoading ? <LoaderIcon /> : <HootIcon className="h-6 w-6 mr-2" />} Approve & Create (1 Hoot)</button></div>)} {isLoading && !script && <p className="text-center text-blue-400">Generating script...</p>} {isLoading && jobId && <p className="text-center text-green-400">Creating audio... this can take a minute.</p>} {error && <p className="text-center text-red-400 font-semibold bg-red-900/50 p-3 rounded-lg">{error}</p>} </div> )}
+    className="w-full h-64 bg-background border border-muted rounded-lg p-3 text-text-muted focus:ring-accent focus:border-accent"
+></textarea><button onClick={handleCreateAudio} disabled={isLoading} className="w-full bg-primary hover:bg-primary-hover text-background font-bold py-3 px-4 rounded-lg flex items-center justify-center text-lg disabled:bg-muted">{isLoading ? <LoaderIcon /> : <HootIcon className="h-6 w-6 mr-2" />} Approve & Create (1 Hoot)</button></div>)} {isLoading && !script && <p className="text-center text-blue-400">Generating script...</p>} {isLoading && jobId && <p className="text-center text-green-400">Creating audio... this can take a minute.</p>} {error && <p className="text-center text-red-400 font-semibold bg-red-900/50 p-3 rounded-lg">{error}</p>} </div> )}
                     </div>
-                    <div className="bg-gray-800 rounded-xl shadow-lg">
+                    <div className="bg-surface rounded-xl shadow-lg">
                         <button onClick={() => setIsLibraryOpen(!isLibraryOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Your Podcast Library</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isLibraryOpen ? 'rotate-180' : ''}`} /> </button>
-                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} onDelete={handleDeletePodcast} onShare={handleSharePodcast} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-gray-400">Your library is empty.</p>}</div>)} </div> )}
+                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-primary text-text-main' : 'bg-muted text-text-muted'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-primary text-text-main' : 'bg-muted text-text-muted'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} onDelete={handleDeletePodcast} onShare={handleSharePodcast} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-text-muted">Your library is empty.</p>}</div>)} </div> )}
                     </div>
                 </div>
             </main>
 
-            <Footer />
+            <Footer setTheme={setTheme} />
             {showBuyTokensModal && (<BuyTokensModal setShowModal={setShowBuyTokensModal} user={user} />)}
         </div>
     );
 };
 
 // --- AUTH WRAPPER & LOGIN PAGE ---
-const AboutModal = ({ isOpen, onClose }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"> <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-lg m-4 relative"> <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white"><CloseIcon /></button> <h2 className="text-2xl font-bold text-white mb-4">About HootPODS</h2> <div className="text-gray-300 space-y-4"> <p>HootPODS uses advanced AI to create custom, educational, and fun audio podcasts for children on any topic you can imagine.</p> <p>Simply choose a topic, provide a few details about your child, and let our AI storyteller and narrator craft a unique audio adventure they'll love. It's a perfect way to make learning exciting and reduce screen time.</p> <p>Sign up to get started with some free "Hoots" to create your first podcasts!</p> </div> </div> </div> ); };
+const AboutModal = ({ isOpen, onClose }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"> <div className="bg-surface rounded-2xl shadow-2xl border border-muted p-8 w-full max-w-lg m-4 relative"> <button onClick={onClose} className="absolute top-4 right-4 text-text-muted hover:text-text-main"><CloseIcon /></button> <h2 className="text-2xl font-bold text-text-main mb-4">About HootPODS</h2> <div className="text-text-muted space-y-4"> <p>HootPODS uses advanced AI to create custom, educational, and fun audio podcasts for children on any topic you can imagine.</p> <p>Simply choose a topic, provide a few details about your child, and let our AI storyteller and narrator craft a unique audio adventure they'll love. It's a perfect way to make learning exciting and reduce screen time.</p> <p>Sign up to get started with some free "Hoots" to create your first podcasts!</p> </div> </div> </div> ); };
 const Login = () => {
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
-    return ( <div className="min-h-screen bg-gray-900 text-white font-sans flex items-center justify-center p-4 relative"> <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} /> <button onClick={() => setIsAboutModalOpen(true)} className="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full transition-colors">About App</button> <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center"> <div className="text-center md:text-left"> <div className="flex items-center justify-center md:justify-start text-4xl font-bold text-white mb-4"><img src="/images/IMG_4365.png" alt="HootPODS Logo" className="h-12 w-12 mr-3" /><h1>HootPODS</h1></div> <p className="text-xl text-gray-300 mb-6">Custom AI-generated podcasts for your kids. Turn any topic into a fun, educational audio adventure they'll love.</p> <p className="text-gray-400">Sign up or sign in to get started!</p> </div> <div> <Authenticator loginMechanisms={['email']} signUpAttributes={['given_name']} components={{Header() {return (<div className="text-center py-4"><HootIcon className="h-16 w-16 mx-auto" /></div>);},SignUp: {FormFields() {return (<> <Authenticator.SignUp.FormFields /> <p className="text-sm text-gray-400 mt-2">First name is optional.</p> </>);}} }} services={{async handleSignUp(formData) {let { username, password, attributes } = formData;if(attributes.given_name) {attributes.given_name = attributes.given_name.charAt(0).toUpperCase() + attributes.given_name.slice(1);}return signUp({ username, password, options: { userAttributes: attributes } }); },}}/> </div> </div> </div> );
+    return ( <div className="min-h-screen bg-background text-text-main font-sans flex items-center justify-center p-4 relative"> <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} /> <button onClick={() => setIsAboutModalOpen(true)} className="absolute top-4 right-4 bg-muted hover:bg-gray-600 text-text-main font-bold py-2 px-4 rounded-full transition-colors">About App</button> <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center"> <div className="text-center md:text-left"> <div className="flex items-center justify-center md:justify-start text-4xl font-bold text-text-main mb-4"><img src="/images/IMG_4365.png" alt="HootPODS Logo" className="h-12 w-12 mr-3" /><h1>HootPODS</h1></div> <p className="text-xl text-text-muted mb-6">Custom AI-generated podcasts for your kids. Turn any topic into a fun, educational audio adventure they'll love.</p> <p className="text-text-muted">Sign up or sign in to get started!</p> </div> <div> <Authenticator loginMechanisms={['email']} signUpAttributes={['given_name']} components={{Header() {return (<div className="text-center py-4"><HootIcon className="h-16 w-16 mx-auto" /></div>);},SignUp: {FormFields() {return (<> <Authenticator.SignUp.FormFields /> <p className="text-sm text-text-muted mt-2">First name is optional.</p> </>);}} }} services={{async handleSignUp(formData) {let { username, password, attributes } = formData;if(attributes.given_name) {attributes.given_name = attributes.given_name.charAt(0).toUpperCase() + attributes.given_name.slice(1);}return signUp({ username, password, options: { userAttributes: attributes } }); },}}/> </div> </div> </div> );
 };
 function App() {
   const { authStatus, user, signOut } = useAuthenticator(context => [context.authStatus, context.user, context.signOut]);
   if (authStatus === 'unauthenticated' || authStatus === 'configuring') { return <Login />; }
-  if (!user) { return (<div className="min-h-screen bg-gray-900 flex items-center justify-center"><LoaderIcon className="h-12 w-12 text-yellow-500" /></div>); }
+  if (!user) { return (<div className="min-h-screen bg-background flex items-center justify-center"><LoaderIcon className="h-12 w-12 text-accent" /></div>); }
   return <PodcastGenerator signOut={signOut} user={user} />;
 }
 function AppWithAuth() { return (<Authenticator.Provider><App /></Authenticator.Provider>); }
-export default AppWithAuth;
+export default AppWithAuth

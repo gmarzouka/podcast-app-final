@@ -1,4 +1,22 @@
 @tailwind base;
+
+:root {
+  /* Default Theme: Dark Yellow/Green */
+  --color-primary: 202 138 4; /* yellow-600 */
+  --color-primary-hover: 22 101 52; /* green-800 */
+  --color-accent: 234 179 8; /* yellow-500 */
+  --color-accent-alt: 226 139 7; /* custom orange #e28b07 */
+  --color-background: 17 24 39; /* gray-900 */
+  --color-surface: 31 41 55; /* gray-800 */
+  --color-muted: 55 65 81; /* gray-700 */
+  --color-text-main: 243 244 246; /* gray-100 */
+  --color-text-muted: 156 163 175; /* gray-400 */
+  --color-border: 107 114 128; /* gray-500 */
+}
+
+@tailwind components;
+@tailwind utilities;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
