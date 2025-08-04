@@ -52,3 +52,11 @@ code {
   --amplify-radii-medium: 0.75rem;
   --amplify-radii-large: 1rem;
 }
+/*
+  FIX FOR AMPLIFY AUTHENTICATOR INPUTS BEING UNRESPONSIVE:
+  This CSS rule prevents an internal container within the Authenticator 
+  from creating an invisible overlay that blocks the input fields.
+*/
+[data-amplify-authenticator] [data-amplify-container] {
+  position: initial !important;
+}
