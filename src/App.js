@@ -408,7 +408,7 @@ const PodcastGenerator = ({ signOut, user }) => {
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const voiceOptions = { 'Friendly Male': 'pNInz6obpgDQGcFmaJgB', 'Calm Female': '21m00Tcm4TlvDq8ikWAM', 'Energetic Narrator': 'ErXwobaYiN019PkySvjV', 'Female Villain': 'flHkNRp1BlvT73UL6gyz', 'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', 'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' };
 // --- THEME STATE AND LOGIC ---
-    const [theme, setTheme] = useState('default'); // 'default', 'ocean', 'forest'
+    const [theme, setTheme] = useState(() => localStorage.getItem('hootpods-theme') || 'default');
    
    useEffect(() => {
     const currentTheme = themes[theme];
@@ -416,7 +416,9 @@ const PodcastGenerator = ({ signOut, user }) => {
     Object.keys(currentTheme).forEach(key => {
         root.style.setProperty(key, currentTheme[key]);
     });
-}, [theme]); // Dependency array no longer needs themes
+    // Save the current theme choice to local storage
+    localStorage.setItem('hootpods-theme', theme);
+}, [theme]);
     useEffect(() => {
         const fetchUserData = async () => { if (!userId) return; try { const profile = await apiCall('post', '/get-user-profile', { userId }); setHoots(profile.hoots); setFirstName(profile.firstName || 'Friend'); setChildren(profile.children || []); fetchHistory(userId); } catch (err) { setError(`Error fetching user data: ${err.message}`); } };
         fetchUserData();
