@@ -331,7 +331,8 @@ const PodcastGenerator = ({ signOut, user }) => {
     const [voiceId, setVoiceId] = useState('21m00Tcm4TlvDq8ikWAM');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [script, setScript] = useState('');
+  //  const [editedScript, setEditedScript] = useState(''); 
+    const [script, setScript] = useState(''); // This is the only state we need for the script
     const [jobId, setJobId] = useState(null);
     const [history, setHistory] = useState([]);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
@@ -370,12 +371,55 @@ const PodcastGenerator = ({ signOut, user }) => {
     useEffect(() => { if (currentTrack && audioRef.current) { audioRef.current.src = currentTrack.url; audioRef.current.play().catch(e => console.error("Autoplay was prevented:", e)); } }, [currentTrack]);
 
     const fetchHistory = async (id) => { setIsHistoryLoading(true); try { const res = await apiCall('post', '/get-history', { userId: id }); setHistory(res.history || []); } catch (err) { setError(`Error fetching history: ${err.message}`); } setIsHistoryLoading(false); };
-    const handleGenerateScript = async (e) => { e.preventDefault(); setError(''); if (!topic) return setError("Please enter a topic."); if (!isAnonymous && selectedChildren.length === 0) return setError("Please select a child or check the anonymous option."); setIsLoading(true); setScript(''); const selectedChildData = children.filter(c => selectedChildren.includes(c.id)); try { const res = await apiCall('post', '/generate-script', { userId, topic, children: selectedChildData, isNeutral: isAnonymous }); setScript(res.script); } catch (err) { setError(`Script generation failed: ${err.message}`); } setIsLoading(false); };
-    const handleCreateAudio = async () => { setError(''); if (hoots < 1) return setError("You don't have enough Hoots."); setIsLoading(true); const selectedChildData = children.filter(c => selectedChildren.includes(c.id)); const childNameForJob = selectedChildData.length > 0 ? selectedChildData.map(c => c.name).join(' & ') : "Everyone"; try { const res = await apiCall('post', '/create-audio-job', { userId, script, topic, voiceId, children: selectedChildData, childName: childNameForJob, isNeutral: isAnonymous }); setJobId(res.jobId); setHoots(hoots - 1); } catch (err) { setError(`Audio creation failed: ${err.message}`); setIsLoading(false); } };
-    const handlePlayPause = (job) => { if (currentTrack?.url === job.audioUrl) { if (isPlaying) { audioRef.current.pause(); } else { audioRef.current.play(); } } else { setCurrentTrack({ url: job.audioUrl, title: job.title }); } };
-    const handleTimeUpdate = () => setCurrentTime(audioRef.current.currentTime);
-    const handleLoadedMetadata = () => setDuration(audioRef.current.duration);
-    const handleSeek = (e) => { audioRef.current.currentTime = e.target.value; setCurrentTime(e.target.value); };
+const handleGenerateScript = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!topic) return setError("Please enter a topic.");
+    if (!isAnonymous && selectedChildren.length === 0) return setError("Please select a child or check the anonymous option.");
+    setIsLoading(true);
+    setScript(''); // Clear the script
+    const selectedChildData = children.filter(c => selectedChildren.includes(c.id));
+    try {
+        const res = await apiCall('post', '/generate-script', { userId, topic, children: selectedChildData, isNeutral: isAnonymous });
+        setScript(res.script); // Set the script state
+    } catch (err) {
+        setError(`Script generation failed: ${err.message}`);
+    }
+    setIsLoading(false);
+};
+const handleCreateAudio = async () => {
+    setError('');
+    if (hoots < 1) return setError("You don't have enough Hoots.");
+    setIsLoading(true);
+    const selectedChildData = children.filter(c => selectedChildren.includes(c.id));
+    const childNameForJob = selectedChildData.length > 0 ? selectedChildData.map(c => c.name).join(' & ') : "Everyone";
+    try {
+        // This now correctly uses the 'script' state, which holds your edits.
+        const res = await apiCall('post', '/create-audio-job', { userId, script, topic, voiceId, children: selectedChildData, childName: childNameForJob, isNeutral: isAnonymous });
+        setJobId(res.jobId);
+        setHoots(hoots - 1);
+    } catch (err) {
+        setError(`Audio creation failed: ${err.message}`);
+        setIsLoading(false);
+    }
+};
+const handlePlayPause = (job) => {
+    if (currentTrack?.url === job.audioUrl) {
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+    } else {
+        setCurrentTrack({ url: job.audioUrl, title: job.title });
+    }
+};
+const handleTimeUpdate = () => setCurrentTime(audioRef.current.currentTime);
+const handleLoadedMetadata = () => setDuration(audioRef.current.duration);
+const handleSeek = (e) => {
+    audioRef.current.currentTime = e.target.value;
+    setCurrentTime(e.target.value);
+};
 
     // New delete handler
 const handleDeletePodcast = async (jobIdToDelete) => {
@@ -409,7 +453,12 @@ const handleDeletePodcast = async (jobIdToDelete) => {
                 <div className="space-y-4">
                     <div className="bg-gray-800 rounded-xl shadow-lg">
                         <button onClick={() => setIsCreatorOpen(!isCreatorOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Create a New Podcast</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isCreatorOpen ? 'rotate-180' : ''}`} /> </button>
-                        {isCreatorOpen && ( <div className="p-6 pt-0 space-y-6"> <form onSubmit={handleGenerateScript} className="space-y-4"> <div className="flex justify-end"> <button type="button" onClick={() => setIsChildModalOpen(true)} className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md">Manage Children</button> </div> <ChildSelector children={children} selectedChildren={selectedChildren} setSelectedChildren={setSelectedChildren} /> <div className="flex items-center"><input id="anonymous-check" type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-blue-600 focus:ring-blue-500"/><label htmlFor="anonymous-check" className="ml-2 block text-sm text-gray-300">Make podcast anonymous</label></div> <div><label htmlFor="topic" className="block text-lg font-semibold text-white mb-2">Topic?</label><input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., Why is the sky blue?" className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500"/></div> <div><label className="block text-lg font-semibold text-white mb-2">Voice</label><select value={voiceId} onChange={e => setVoiceId(e.target.value)} className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500">{Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}</select></div> <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-white bg-yellow-600 rounded-lg hover:bg-green-800 disabled:bg-gray-500"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-gray-700 pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3><textarea readOnly value={script} className="w-full h-64 bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300"></textarea><button onClick={handleCreateAudio} disabled={isLoading} className="w-full bg-yellow-600 hover:bg-green-800 text-black font-bold py-3 px-4 rounded-lg flex items-center justify-center text-lg disabled:bg-gray-500">{isLoading ? <LoaderIcon /> : <HootIcon className="h-6 w-6 mr-2" />} Approve & Create (1 Hoot)</button></div>)} {isLoading && !script && <p className="text-center text-blue-400">Generating script...</p>} {isLoading && jobId && <p className="text-center text-green-400">Creating audio... this can take a minute.</p>} {error && <p className="text-center text-red-400 font-semibold bg-red-900/50 p-3 rounded-lg">{error}</p>} </div> )}
+                        {isCreatorOpen && ( <div className="p-6 pt-0 space-y-6"> <form onSubmit={handleGenerateScript} className="space-y-4"> <div className="flex justify-end"> <button type="button" onClick={() => setIsChildModalOpen(true)} className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md">Manage Children</button> </div> <ChildSelector children={children} selectedChildren={selectedChildren} setSelectedChildren={setSelectedChildren} /> <div className="flex items-center"><input id="anonymous-check" type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-blue-600 focus:ring-blue-500"/><label htmlFor="anonymous-check" className="ml-2 block text-sm text-gray-300">Make podcast anonymous</label></div> <div><label htmlFor="topic" className="block text-lg font-semibold text-white mb-2">Topic?</label><input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., Why is the sky blue?" className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500"/></div> <div><label className="block text-lg font-semibold text-white mb-2">Voice</label><select value={voiceId} onChange={e => setVoiceId(e.target.value)} className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500">{Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}</select></div> <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-white bg-yellow-600 rounded-lg hover:bg-green-800 disabled:bg-gray-500"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-gray-700 pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3>
+                        <textarea 
+    value={script} 
+    onChange={(e) => setScript(e.target.value)}
+    className="w-full h-64 bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-300 focus:ring-yellow-500 focus:border-yellow-500"
+></textarea><button onClick={handleCreateAudio} disabled={isLoading} className="w-full bg-yellow-600 hover:bg-green-800 text-black font-bold py-3 px-4 rounded-lg flex items-center justify-center text-lg disabled:bg-gray-500">{isLoading ? <LoaderIcon /> : <HootIcon className="h-6 w-6 mr-2" />} Approve & Create (1 Hoot)</button></div>)} {isLoading && !script && <p className="text-center text-blue-400">Generating script...</p>} {isLoading && jobId && <p className="text-center text-green-400">Creating audio... this can take a minute.</p>} {error && <p className="text-center text-red-400 font-semibold bg-red-900/50 p-3 rounded-lg">{error}</p>} </div> )}
                     </div>
                     <div className="bg-gray-800 rounded-xl shadow-lg">
                         <button onClick={() => setIsLibraryOpen(!isLibraryOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Your Podcast Library</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isLibraryOpen ? 'rotate-180' : ''}`} /> </button>
