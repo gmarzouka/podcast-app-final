@@ -39,6 +39,7 @@ const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
 const ChevronDownIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>);
+const ShareIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>);
 
 // --- CENTRALIZED API CALL FUNCTION ---
 const apiCall = async (method, path, body) => {
@@ -263,7 +264,7 @@ const BuyTokensModal = ({ setShowModal, user }) => {
 };
 
 // --- PODCAST LIST ITEM COMPONENT ---
-const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, currentTrackUrl, currentTime, duration, onSeek }) => {
+const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, currentTrackUrl, currentTime, duration, onSeek }) => {
     const isActive = currentTrackUrl === job.audioUrl;
 
     return (
@@ -273,30 +274,26 @@ const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, currentTrackUr
                     <p className="font-bold text-lg truncate">{job.title}</p>
                     <p className="text-sm text-gray-400">{new Date(job.createdAt).toLocaleString()}</p>
                 </div>
-                {/* --- START: This is the only part that changes --- */}
                 <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                    <button onClick={() => onPlayPause(job)} className="bg-yellow-600 hover:bg-green-800 rounded-full p-3">
-                        {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
+                    {/* Share Button (New) */}
+                    <button onClick={() => onShare(job)} title="Share Podcast" className="text-gray-400 hover:text-blue-400 p-2 rounded-full transition-colors">
+                        <ShareIcon />
                     </button>
+                    {/* Delete Button */}
                     <button onClick={() => onDelete(job.jobId)} title="Delete Podcast" className="text-gray-400 hover:text-red-500 p-2 rounded-full transition-colors">
                         <TrashIcon />
                     </button>
+                    {/* Play/Pause Button */}
+                    <button onClick={() => onPlayPause(job)} className="bg-yellow-600 hover:bg-green-800 rounded-full p-3">
+                        {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
+                    </button>
                 </div>
-                 {/* --- END: Change ends here --- */}
             </div>
-             {/* THIS PART IS IDENTICAL AND IS NOT REMOVED */}
             {isActive && (
                 <div className="mt-4 pt-4 border-t border-gray-600">
                     <div className="flex items-center gap-2 text-sm">
                         <span>{formatTime(currentTime)}</span>
-                        <input
-                            type="range"
-                            min="0"
-                            max={duration}
-                            value={currentTime}
-                            onChange={onSeek}
-                            className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-yellow-500"
-                        />
+                        <input type="range" min="0" max={duration} value={currentTime} onChange={onSeek} className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-yellow-500"/>
                         <span>{formatTime(duration)}</span>
                     </div>
                 </div>
@@ -435,6 +432,32 @@ const handleDeletePodcast = async (jobIdToDelete) => {
         setError(`Failed to delete podcast: ${err.message}`);
     }
 };
+// New share handler
+const handleSharePodcast = async (job) => {
+    const shareData = {
+        title: `Listen to: ${job.title}`,
+        text: `I made a HootPOD about "${job.title}"! You can listen to it here:`,
+        url: job.audioUrl,
+    };
+
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+            console.log('Podcast shared successfully!');
+        } catch (err) {
+            console.error('Error sharing podcast:', err);
+        }
+    } else {
+        // Fallback for browsers that do not support the Web Share API
+        try {
+            await navigator.clipboard.writeText(job.audioUrl);
+            alert('Link copied to clipboard!'); // You could replace this with a more elegant notification
+        } catch (err) {
+            console.error('Failed to copy link:', err);
+            alert('Failed to copy link. Please copy it manually.');
+        }
+    }
+};
     const sortedHistory = [...history].filter(job => job.status && job.status.toLowerCase() === 'complete').sort((a, b) => { if (sortOrder === 'topic') { return (a.title || '').localeCompare(b.title || ''); } return new Date(b.createdAt) - new Date(a.createdAt); });
 
     return (
@@ -491,7 +514,7 @@ const handleDeletePodcast = async (jobIdToDelete) => {
                     </div>
                     <div className="bg-gray-800 rounded-xl shadow-lg">
                         <button onClick={() => setIsLibraryOpen(!isLibraryOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Your Podcast Library</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isLibraryOpen ? 'rotate-180' : ''}`} /> </button>
-                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} onDelete={handleDeletePodcast} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-gray-400">Your library is empty.</p>}</div>)} </div> )}
+                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} onDelete={handleDeletePodcast} onShare={handleSharePodcast} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-gray-400">Your library is empty.</p>}</div>)} </div> )}
                     </div>
                 </div>
             </main>
