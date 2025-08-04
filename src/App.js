@@ -329,6 +329,7 @@ const PodcastGenerator = ({ signOut, user }) => {
     const [selectedChildren, setSelectedChildren] = useState([]);
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [voiceId, setVoiceId] = useState('21m00Tcm4TlvDq8ikWAM');
+    const [gradeLevel, setGradeLevel] = useState('5th Grade'); // Default to 5th Grade
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
   //  const [editedScript, setEditedScript] = useState(''); 
@@ -395,7 +396,7 @@ const handleCreateAudio = async () => {
     const childNameForJob = selectedChildData.length > 0 ? selectedChildData.map(c => c.name).join(' & ') : "Everyone";
     try {
         // This now correctly uses the 'script' state, which holds your edits.
-        const res = await apiCall('post', '/create-audio-job', { userId, script, topic, voiceId, children: selectedChildData, childName: childNameForJob, isNeutral: isAnonymous });
+        const res = await apiCall('post', '/create-audio-job', { userId, script, topic, voiceId, gradeLevel, children: selectedChildData, childName: childNameForJob, isNeutral: isAnonymous });
         setJobId(res.jobId);
         setHoots(hoots - 1);
     } catch (err) {
@@ -453,7 +454,35 @@ const handleDeletePodcast = async (jobIdToDelete) => {
                 <div className="space-y-4">
                     <div className="bg-gray-800 rounded-xl shadow-lg">
                         <button onClick={() => setIsCreatorOpen(!isCreatorOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Create a New Podcast</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isCreatorOpen ? 'rotate-180' : ''}`} /> </button>
-                        {isCreatorOpen && ( <div className="p-6 pt-0 space-y-6"> <form onSubmit={handleGenerateScript} className="space-y-4"> <div className="flex justify-end"> <button type="button" onClick={() => setIsChildModalOpen(true)} className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md">Manage Children</button> </div> <ChildSelector children={children} selectedChildren={selectedChildren} setSelectedChildren={setSelectedChildren} /> <div className="flex items-center"><input id="anonymous-check" type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-blue-600 focus:ring-blue-500"/><label htmlFor="anonymous-check" className="ml-2 block text-sm text-gray-300">Make podcast anonymous</label></div> <div><label htmlFor="topic" className="block text-lg font-semibold text-white mb-2">Topic?</label><input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., Why is the sky blue?" className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500"/></div> <div><label className="block text-lg font-semibold text-white mb-2">Voice</label><select value={voiceId} onChange={e => setVoiceId(e.target.value)} className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500">{Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}</select></div> <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-white bg-yellow-600 rounded-lg hover:bg-green-800 disabled:bg-gray-500"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-gray-700 pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3>
+                        {isCreatorOpen && ( <div className="p-6 pt-0 space-y-6"> <form onSubmit={handleGenerateScript} className="space-y-4"> <div className="flex justify-end"> <button type="button" onClick={() => setIsChildModalOpen(true)} className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md">Manage Children</button> </div> <ChildSelector children={children} selectedChildren={selectedChildren} setSelectedChildren={setSelectedChildren} /> <div className="flex items-center"><input id="anonymous-check" type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-blue-600 focus:ring-blue-500"/><label htmlFor="anonymous-check" className="ml-2 block text-sm text-gray-300">Make podcast anonymous</label></div> 
+                        <div><label htmlFor="topic" className="block text-lg font-semibold text-white mb-2">Topic?</label><input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., Why is the sky blue?" className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500"/></div> 
+                        <div>
+    <label htmlFor="gradeLevel" className="block text-lg font-semibold text-white mb-2">Academic Level</label>
+    <select 
+        id="gradeLevel" 
+        value={gradeLevel} 
+        onChange={e => setGradeLevel(e.target.value)} 
+        className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500"
+    >
+        <option>Preschool</option>
+        <option>Kindergarten</option>
+        <option>1st Grade</option>
+        <option>2nd Grade</option>
+        <option>3rd Grade</option>
+        <option>4th Grade</option>
+        <option>5th Grade</option>
+        <option>6th Grade</option>
+        <option>7th Grade</option>
+        <option>8th Grade</option>
+        <option>9th Grade</option>
+        <option>10th Grade</option>
+        <option>11th Grade</option>
+        <option>12th Grade</option>
+        <option>College</option>
+        <option>Adult</option>
+    </select>
+</div>
+                        <div><label className="block text-lg font-semibold text-white mb-2">Voice</label><select value={voiceId} onChange={e => setVoiceId(e.target.value)} className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500">{Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}</select></div> <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-white bg-yellow-600 rounded-lg hover:bg-green-800 disabled:bg-gray-500"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-gray-700 pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3> <span className="text-sm text-gray-400">(Don't like the output? No problem, change the topic or question and click "Generate Preview" for a new script. Want to make minor changes? Feel free to click below to edit the script before submitting for audio generation.)</span>
                         <textarea 
     value={script} 
     onChange={(e) => setScript(e.target.value)}
