@@ -613,27 +613,30 @@ const handleSharePodcast = async (job) => {
 const AboutModal = ({ isOpen, onClose }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"> <div className="bg-surface rounded-2xl shadow-2xl border border-muted p-8 w-full max-w-lg m-4 relative"> <button onClick={onClose} className="absolute top-4 right-4 text-text-muted hover:text-text-main"><CloseIcon /></button> <h2 className="text-2xl font-bold text-text-main mb-4">About HootPODS</h2> <div className="text-text-muted space-y-4"> <p>HootPODS uses advanced AI to create custom, educational, and fun audio podcasts for children on any topic you can imagine.</p> <p>Simply choose a topic, provide a few details about your child, and let our AI storyteller and narrator craft a unique audio adventure they'll love. It's a perfect way to make learning exciting and reduce screen time.</p> <p>Sign up to get started with some free "Hoots" to create your first podcasts!</p> </div> </div> </div> ); };
 const Login = () => {
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
-    return ( <div className="min-h-screen bg-background text-text-main font-sans flex items-center justify-center p-4 relative"> <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} /> <button onClick={() => setIsAboutModalOpen(true)} className="absolute top-4 right-4 bg-muted hover:bg-gray-600 text-text-main font-bold py-2 px-4 rounded-full transition-colors">About App</button> <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center"> <div className="text-center md:text-left"> <div className="flex items-center justify-center md:justify-start text-4xl font-bold text-text-main mb-4"><img src="/images/IMG_4365.png" alt="HootPODS Logo" className="h-12 w-12 mr-3" /><h1>HootPODS</h1></div> <p className="text-xl text-text-muted mb-6">Custom AI-generated podcasts for your kids. Turn any topic into a fun, educational audio adventure they'll love.</p> <p className="text-text-muted">Sign up or sign in to get started!</p> </div> <div> <Authenticator loginMechanisms={['email']} signUpAttributes={['given_name']} 
-   components={{
+    return ( <div className="min-h-screen bg-background text-text-main font-sans flex items-center justify-center p-4 relative"> <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} /> <button onClick={() => setIsAboutModalOpen(true)} className="absolute top-4 right-4 bg-muted hover:bg-gray-600 text-text-main font-bold py-2 px-4 rounded-full transition-colors">About App</button> <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center"> <div className="text-center md:text-left"> <div className="flex items-center justify-center md:justify-start text-4xl font-bold text-text-main mb-4"><img src="/images/IMG_4365.png" alt="HootPODS Logo" className="h-12 w-12 mr-3" /><h1>HootPODS</h1></div> <p className="text-xl text-text-muted mb-6">Custom AI-generated podcasts for your kids. Turn any topic into a fun, educational audio adventure they'll love.</p> <p className="text-text-muted">Sign up or sign in to get started!</p> </div> <div> <Authenticator
+  loginMechanisms={['email']}
+  signUpAttributes={['given_name']}
+  components={{
     Header() {
-        return (<div className="text-center py-4"><HootIcon className="h-16 w-16 mx-auto" /></div>);
+      return (<div className="text-center py-4"><HootIcon className="h-16 w-16 mx-auto" /></div>);
     },
     SignUp: {
-        Footer() {
-            return <p className="text-sm text-text-muted mt-2 text-center">First name is optional.</p>;
-        }
+      Footer() {
+        return <p className="text-sm text-text-muted mt-2 text-center">First name is optional.</p>;
+      }
     }
-}}services={{
+  }}
+  services={{
     async handleSignUp(formData) {
-        let { username, password, attributes } = formData;
-        // This now safely checks if attributes and given_name exist before trying to modify them.
-        if (attributes && attributes.given_name) {
-            attributes.given_name = attributes.given_name.charAt(0).toUpperCase() + attributes.given_name.slice(1);
-        }
-        return signUp({ username, password, options: { userAttributes: attributes } });
-    },
-}} />
-    }} /> </div> </div> </div> );
+      let { username, password, attributes } = formData;
+      if (attributes && attributes.given_name) {
+        attributes.given_name = attributes.given_name.charAt(0).toUpperCase() + attributes.given_name.slice(1);
+      }
+      return signUp({ username, password, options: { userAttributes: attributes } });
+    }
+  }}
+/>
+    </div> </div> </div> );
 };
 function App() {
   const { authStatus, user, signOut } = useAuthenticator(context => [context.authStatus, context.user, context.signOut]);
