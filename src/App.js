@@ -45,7 +45,6 @@ const LoaderIcon = ({ className = "h-5 w-5 mr-3" }) => (<svg xmlns="http://www.w
 const PlayIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>);
 const PauseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>);
 const HootIcon = ({ className = "h-6 w-6 inline-block" }) => (<img src="/images/IMG_4365.png" alt="Hoot Token" className={className} />);
-const TokenIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9.5c.83 0 1.5-.67 1.5-1.5S10.83 7.5 10 7.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 7.5 14 7.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm-4 4c1.67 0 3-1.33 3-3h-6c0 1.67 1.33 3 3 3z"></path></svg>);
 const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
 const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
 const ChevronDownIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>);
@@ -220,59 +219,6 @@ const ChildSelector = ({ children, selectedChildren, setSelectedChildren }) => {
     );
 };
 
-// --- BUY TOKENS MODAL ---
-const BuyTokensModal = ({ setShowModal, user }) => {
-    const [isPurchasing, setIsPurchasing] = useState(false);
-    const [error, setError] = useState(null);
-    const tokenPacks = [
-        { amount: 5,  price: 2.50, priceId: 'price_1Rr8iCBKrdK3UUm6xoWijZW5' },
-        { amount: 15, price: 5.00, priceId: 'price_1Rr6t2BKrdK3UUm6aOfwDN1C' },
-        { amount: 20, price: 10.00, priceId: 'price_1Rr8iwBKrdK3UUm6Gb5NBhWq' },
-        { amount: 30, price: 25.00, priceId: 'price_1Rr8jUBKrdK3UUm6Re99Vycl' },
-    ];
-    const handlePurchase = async (priceId) => {
-        setIsPurchasing(true);
-        setError(null);
-        try {
-            const data = await apiCall('post', '/create-payment-session', { priceId, userId: user.userId });
-            window.location.href = data.url;
-        } catch (err) {
-            console.error("Purchase error:", err);
-            setError("Could not initiate purchase. Please try again.");
-            setIsPurchasing(false);
-        }
-    };
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-surface rounded-2xl shadow-2xl border border-muted p-8 w-full max-w-lg m-4">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-text-main">Get More Hoots</h2>
-                    {!isPurchasing && (<button onClick={() => setShowModal(false)} className="text-text-muted hover:text-text-main"><CloseIcon /></button>)}
-                </div>
-                <p className="text-text-muted mb-6">Each Hoot lets you create one magical audio podcast.</p>
-                <div className="space-y-4">
-                    {isPurchasing ? (
-                        <div className="text-center py-10">
-                            <LoaderIcon className="h-10 w-10 mx-auto text-accent-alt" />
-                            <p className="mt-4">Redirecting to our secure payment processor...</p>
-                        </div>
-                    ) : (
-                        tokenPacks.map(pack => (
-                            <button key={pack.priceId} onClick={() => handlePurchase(pack.priceId)} className="w-full flex justify-between items-center p-4 bg-muted hover:bg-gray-600 rounded-lg transition-colors">
-                                <div className="flex items-center">
-                                    <TokenIcon />
-                                    <span className="ml-3 font-bold text-lg">{pack.amount} Hoots</span>
-                                </div>
-                                <span className="text-lg font-bold text-accent-alt">${pack.price.toFixed(2)}</span>
-                            </button>
-                        ))
-                    )}
-                    {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
-                </div>
-            </div>
-        </div>
-    );
-};
 
 // --- PODCAST LIST ITEM COMPONENT ---
 const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, currentTrackUrl, currentTime, duration, onSeek }) => {
@@ -388,7 +334,76 @@ const themes = {
         '--color-border': '209 213 219',     /* gray-300 */
     }
 };
+// --- BUY HOOTS MODAL ---
+const BuyTokensModal = ({ setShowModal, user }) => {
+    const [isPurchasing, setIsPurchasing] = useState(false);
+    const [error, setError] = useState(null);
 
+    const hootPacks = [
+        { amount: 5,  price: 2.50, priceId: 'price_1Rr8iCBKrdK3UUm6xoWijZW5' },
+        { amount: 15, price: 5.00, priceId: 'price_1Rr6t2BKrdK3UUm6aOfwDN1C' },
+        { amount: 20, price: 10.00, priceId: 'price_1Rr8iwBKrdK3UUm6Gb5NBhWq' },
+        { amount: 30, price: 25.00, priceId: 'price_1Rr8jUBKrdK3UUm6Re99Vycl' },
+    ];
+
+   const handlePurchase = async (priceId) => {
+    setIsPurchasing(true);
+    setError(null);
+    try {
+        // This uses the authenticated apiCall helper function
+        const data = await apiCall('post', '/create-payment-session', { priceId, userId: user.userId });
+
+        if (data.url) {
+            window.location.href = data.url; // Redirect to Stripe
+        } else {
+            throw new Error("No checkout URL was returned from the server.");
+        }
+
+    } catch (err) {
+        console.error("Purchase error:", err);
+        setError("Could not initiate purchase. Please try again.");
+        setIsPurchasing(false);
+    }
+};
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-8 w-full max-w-lg m-4">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-white">Get More Hoots</h2>
+                    {!isPurchasing && <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white"><CloseIcon /></button>}
+                </div>
+
+                {isPurchasing ? (
+                    <div className="text-center py-10">
+                        <LoaderIcon className="h-10 w-10 mx-auto text-yellow-500" />
+                        <p className="mt-4">Redirecting to our secure payment processor...</p>
+                    </div>
+                ) : (
+                    <>
+                        <p className="text-gray-400 mb-6">Each Hoot lets you create one magical audio podcast.</p>
+                        <div className="space-y-4">
+                            {hootPacks.map(pack => (
+                                <button
+                                    key={pack.priceId}
+                                    onClick={() => handlePurchase(pack.priceId)}
+                                    className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                                    disabled={isPurchasing}
+                                >
+                                    <div className="flex items-center">
+                                        <HootIcon />
+                                        <span className="ml-3 font-bold text-lg">{pack.amount} Hoots</span>
+                                    </div>
+                                    <span className="text-lg font-bold text-yellow-500">${pack.price.toFixed(2)}</span>
+                                </button>
+                            ))}
+                        </div>
+                        {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
 // --- PODCAST GENERATOR (MAIN APP) COMPONENT ---
 const PodcastGenerator = ({ signOut, user }) => {
     const userId = user.userId; 
@@ -418,7 +433,8 @@ const PodcastGenerator = ({ signOut, user }) => {
     const [isCreatorOpen, setIsCreatorOpen] = useState(true);
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const voiceOptions = { 'Friendly Male': 'pNInz6obpgDQGcFmaJgB', 'Calm Female': '21m00Tcm4TlvDq8ikWAM', 'Energetic Narrator': 'ErXwobaYiN019PkySvjV', 'Female Villain': 'flHkNRp1BlvT73UL6gyz', 'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', 'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' };
-// --- THEME STATE AND LOGIC ---
+       
+    // --- THEME STATE AND LOGIC ---
     const [theme, setTheme] = useState(() => localStorage.getItem('hootpods-theme') || 'default');
    
    useEffect(() => {
@@ -430,10 +446,37 @@ const PodcastGenerator = ({ signOut, user }) => {
     // Save the current theme choice to local storage
     localStorage.setItem('hootpods-theme', theme);
 }, [theme]);
-    useEffect(() => {
-        const fetchUserData = async () => { if (!userId) return; try { const profile = await apiCall('post', '/get-user-profile', { userId }); setHoots(profile.hoots); setFirstName(profile.firstName || 'Friend'); setChildren(profile.children || []); fetchHistory(userId); } catch (err) { setError(`Error fetching user data: ${err.message}`); } };
-        fetchUserData();
-    }, [userId]);
+    // Find and replace this entire useEffect block in the PodcastGenerator component
+useEffect(() => {
+    const fetchUserData = async () => {
+        if (!userId) return;
+        try {
+            const profile = await apiCall('post', '/get-user-profile', { userId });
+            setHoots(profile.hoots);
+            setFirstName(profile.firstName || 'Friend');
+            setChildren(profile.children || []);
+            fetchHistory(userId);
+        } catch (err) {
+            setError(`Error fetching user data: ${err.message}`);
+        }
+    };
+
+    fetchUserData();
+
+    // Check for payment status in the URL after fetching initial data
+    const queryParams = new URLSearchParams(window.location.search);
+    if (queryParams.get('payment') === 'success') {
+        alert("Purchase successful! Your Hoots have been added.");
+        fetchUserData(); // Refetch the user data to get the new balance
+        // Clean the URL so the message doesn't appear on a page refresh
+        window.history.replaceState(null, null, window.location.pathname);
+    }
+    if (queryParams.get('payment') === 'cancelled') {
+        // Optional: Show a message if the user cancelled the purchase
+        alert("Your purchase was cancelled. You have not been charged.");
+        window.history.replaceState(null, null, window.location.pathname);
+    }
+}, [userId]); // The dependency array remains the same
 
     useEffect(() => {
         if (!jobId || !isLoading || !userId) return;

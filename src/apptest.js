@@ -116,32 +116,26 @@ const BuyTokensModal = ({ setShowModal, user }) => {
         { amount: 30, price: 25.00, priceId: 'price_1Rr8jUBKrdK3UUm6Re99Vycl' },
     ];
 
-    const handlePurchase = async (priceId) => {
-        setIsPurchasing(true);
-        setError(null);
-        try {
-            const response = await fetch(`${API_BASE_URL}/create-payment-session`, {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ priceId, userId: user.userId })
-            });
+   const handlePurchase = async (priceId) => {
+    setIsPurchasing(true);
+    setError(null);
+    try {
+        // Use the centralized apiCall function to automatically handle authentication
+        const data = await apiCall('post', '/create-payment-session', { priceId, userId: user.userId });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to create payment session.");
-            }
-
+        if (data.url) {
             // Redirect to Stripe's secure checkout page
             window.location.href = data.url;
-
-        } catch (err) {
-            console.error("Purchase error:", err);
-            setError("Could not initiate purchase. Please try again.");
-            setIsPurchasing(false);
+        } else {
+            throw new Error("No checkout URL was returned from the server.");
         }
-    };
+
+    } catch (err) {
+        console.error("Purchase error:", err);
+        setError("Could not initiate purchase. Please try again.");
+        setIsPurchasing(false);
+    }
+};
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
