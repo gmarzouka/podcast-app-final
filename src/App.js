@@ -584,11 +584,11 @@ const handleGenerateScript = async (e) => {
     if (isStoryMode) {
         finalPrompt = `You are an expert children's story author. Your task is to write an original, amazing, and engaging children's story based on the specific parameters below. You must strictly adhere to the established principles of high-quality children's literature.
 
-Create a fun and magical bedtime story for a child about "$topic". The plot should:
-1. Introduce an age-appropriate problem early in the story that is directly related to $topic.
+Create a fun and magical bedtime story for a child about ${topic}. The plot should:
+1. Introduce an age-appropriate problem early in the story that is directly related to ${topic}.
 2. Logical Progression (The plot must follow a clear cause-and-effect sequence (Action A leads to Consequence B). The story needs a clear beginning, a middle where the character tries to solve the problem, and a satisfying end.
 3. Satisfying Resolution: The ending must be hopeful and emotionally satisfying. The main character should have learned something or grown as a person because of their actions.
-4. Include a Relatable Protagonist ( a main character who is the hero of the story. This character should have a clear and strong desire related to the topic of $topic.)
+4. Include a Relatable Protagonist named [Childs Name]( a main character who is the hero of the story. This character should have a clear and strong desire related to the topic of ${topic}.)
 
 Child agency is critical to the story. The child protagonist must be the one who solves the central conflict. Adults can be supportive, but they must not save the day. The victory must belong to the child.
 
