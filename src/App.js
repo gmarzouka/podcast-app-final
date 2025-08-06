@@ -516,7 +516,8 @@ const PodcastGenerator = ({ user, signOut, activeTheme, onThemeChange, themes })
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const voiceOptions = { 'Friendly Male': 'pNInz6obpgDQGcFmaJgB', 'Calm Female': '21m00Tcm4TlvDq8ikWAM', 'Energetic Narrator': 'ErXwobaYiN019PkySvjV', 'Female Villain': 'flHkNRp1BlvT73UL6gyz', 'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', 'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' };
     const [isThemeModalOpen, setIsThemeModalOpen] = useState(false); 
-       
+    const [isStoryMode, setIsStoryMode] = useState(false);
+
    // Replace it with this
     // Find and replace this entire useEffect block in the PodcastGenerator component
 useEffect(() => {
@@ -574,11 +575,42 @@ const handleGenerateScript = async (e) => {
     if (!topic) return setError("Please enter a topic.");
     if (!isAnonymous && selectedChildren.length === 0) return setError("Please select a child or check the anonymous option.");
     setIsLoading(true);
-    setScript(''); // Clear the script
+    setScript('');
+
+    // Start with the user's raw input from the text box.
+    let finalPrompt = topic;
+
+    // If story mode is checked, wrap the user's topic in our detailed story prompt.
+    if (isStoryMode) {
+        finalPrompt = `You are an expert children's story author. Your task is to write an original, amazing, and engaging children's story based on the specific parameters below. You must strictly adhere to the established principles of high-quality children's literature.
+
+Create a fun and magical bedtime story for a child about "$topic". The plot should:
+1. Introduce an age-appropriate problem early in the story that is directly related to $topic.
+2. Logical Progression (The plot must follow a clear cause-and-effect sequence (Action A leads to Consequence B). The story needs a clear beginning, a middle where the character tries to solve the problem, and a satisfying end.
+3. Satisfying Resolution: The ending must be hopeful and emotionally satisfying. The main character should have learned something or grown as a person because of their actions.
+4. Include a Relatable Protagonist ( a main character who is the hero of the story. This character should have a clear and strong desire related to the topic of $topic.)
+
+Child agency is critical to the story. The child protagonist must be the one who solves the central conflict. Adults can be supportive, but they must not save the day. The victory must belong to the child.
+
+Show, Don't Tell: Use vivid, sensory language to describe the world. Instead of saying a character is "brave," show them taking a deep breath and doing the scary thing.
+
+Engaging to Read Aloud: Write with a clear rhythm. Use sound devices like onomatopoeia (splash, crunch, beep) and alliteration where appropriate to make the story fun to hear.
+
+Integrate Interests: Subtly weave the child's other interests into the story's setting, character traits, or plot points.
+
+Critical Don'ts:
+DO NOT Be Preachy: The story's message or moral should be embedded within the plot and the character's journey. Do not end the story with a direct, spelled-out lesson like "And the moral of the story is..."
+DO NOT Talk Down to the Child: Respect the reader's intelligence. Use clear, accessible language without being condescending.
+DO NOT Create Passive Characters: The protagonist must actively try to achieve their goal.
+
+Final Task:
+Write a complete story based on all the above rules and parameters. Give the story a fitting title.`;    }
+
     const selectedChildData = children.filter(c => selectedChildren.includes(c.id));
     try {
-        const res = await apiCall('post', '/generate-script', { userId, topic, children: selectedChildData, isNeutral: isAnonymous });
-        setScript(res.script); // Set the script state
+        // The backend doesn't need to change. We just send the fully constructed prompt.
+        const res = await apiCall('post', '/generate-script', { userId, topic: finalPrompt, children: selectedChildData, isNeutral: isAnonymous, gradeLevel });
+        setScript(res.script);
     } catch (err) {
         setError(`Script generation failed: ${err.message}`);
     }
@@ -677,7 +709,34 @@ const handleSharePodcast = async (job) => {
                     <div className="bg-surface rounded-xl shadow-lg">
                         <button onClick={() => setIsCreatorOpen(!isCreatorOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Create a New Podcast</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isCreatorOpen ? 'rotate-180' : ''}`} /> </button>
                         {isCreatorOpen && ( <div className="p-6 pt-0 space-y-6"> <form onSubmit={handleGenerateScript} className="space-y-4"> <div className="flex justify-end"> <button type="button" onClick={() => setIsChildModalOpen(true)} className="bg-primary hover:bg-primary text-text-main font-bold py-2 px-4 rounded-md">Manage Children</button> </div> <ChildSelector children={children} selectedChildren={selectedChildren} setSelectedChildren={setSelectedChildren} /> <div className="flex items-center"><input id="anonymous-check" type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="h-4 w-4 rounded bg-background border-muted text-blue-600 focus:ring-primary"/><label htmlFor="anonymous-check" className="ml-2 block text-sm text-text-muted">Make podcast anonymous</label></div> 
-                        <div><label htmlFor="topic" className="block text-lg font-semibold text-text-main mb-2">Topic?</label><input type="text" id="topic" value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g., Why is the sky blue?" className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"/></div> 
+                        <div>
+    <div className="flex justify-between items-center mb-2">
+        <label htmlFor="topic" className="text-lg font-semibold text-text-main">What should we talk about?</label>
+           </div>
+    <textarea
+        id="topic"
+        value={topic}
+        onChange={e => setTopic(e.target.value)}
+        placeholder="Enter a simple topic (e.g., 'the solar system'). Check the option below for a creative audio story customized to your child!"
+        className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"
+        rows="4"
+    /> {/* This is the new checkbox section */}
+<div className="flex items-center justify-start py-4">
+    <input
+        id="story-mode-check"
+        type="checkbox"
+        checked={isStoryMode}
+        onChange={(e) => setIsStoryMode(e.target.checked)}
+        className="h-5 w-5 rounded bg-surface border-muted text-primary focus:ring-primary cursor-pointer"
+    />
+    <label
+        htmlFor="story-mode-check"
+        className="ml-3 block text-md font-medium text-text-main cursor-pointer"
+    >
+        Tell it as a story ✨
+    </label>
+</div>
+</div>
                         <div>
     <label htmlFor="gradeLevel" className="block text-lg font-semibold text-text-main mb-2">Academic Level</label>
     <select 
