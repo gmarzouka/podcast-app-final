@@ -50,6 +50,22 @@ const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" heigh
 const ChevronDownIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>);
 const ShareIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>);
+const ContentTypeButton = ({ type, selectedType, setType, label }) => {
+    const isSelected = type === selectedType;
+    return (
+        <button
+            type="button"
+            onClick={() => setType(type)}
+            className={`w-full p-3 rounded-lg font-semibold text-center transition-all duration-200 border-2 ${
+                isSelected 
+                    ? 'bg-primary border-primary-hover text-background' 
+                    : 'bg-muted border-muted hover:border-primary'
+            }`}
+        >
+            {label}
+        </button>
+    );
+};
 
 // --- CENTRALIZED API CALL FUNCTION ---
 const apiCall = async (method, path, body) => {
@@ -516,7 +532,7 @@ const PodcastGenerator = ({ user, signOut, activeTheme, onThemeChange, themes })
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const voiceOptions = { 'Friendly Male': 'pNInz6obpgDQGcFmaJgB', 'Calm Female': '21m00Tcm4TlvDq8ikWAM', 'Energetic Narrator': 'ErXwobaYiN019PkySvjV', 'Female Villain': 'flHkNRp1BlvT73UL6gyz', 'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', 'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' };
     const [isThemeModalOpen, setIsThemeModalOpen] = useState(false); 
-    const [isStoryMode, setIsStoryMode] = useState(false);
+    const [contentType, setContentType] = useState('podcast'); // 'podcast', 'story', or 'poem'
 
    // Replace it with this
     // Find and replace this entire useEffect block in the PodcastGenerator component
@@ -577,39 +593,16 @@ const handleGenerateScript = async (e) => {
     setIsLoading(true);
     setScript('');
 
-    // Start with the user's raw input from the text box.
-    let finalPrompt = topic;
-
-    // If story mode is checked, wrap the user's topic in our detailed story prompt.
-    if (isStoryMode) {
-        finalPrompt = `You are an expert children's story author. Your task is to write an original, amazing, and engaging children's story based on the specific parameters below. You must strictly adhere to the established principles of high-quality children's literature.
-
-Create a fun and magical bedtime story for a child about ${topic}. The plot should:
-1. Introduce an age-appropriate problem early in the story that is directly related to ${topic}.
-2. Logical Progression (The plot must follow a clear cause-and-effect sequence (Action A leads to Consequence B). The story needs a clear beginning, a middle where the character tries to solve the problem, and a satisfying end.
-3. Satisfying Resolution: The ending must be hopeful and emotionally satisfying. The main character should have learned something or grown as a person because of their actions.
-4. Include a Relatable Protagonist named [Childs Name]( a main character who is the hero of the story. This character should have a clear and strong desire related to the topic of ${topic}.)
-
-Child agency is critical to the story. The child protagonist must be the one who solves the central conflict. Adults can be supportive, but they must not save the day. The victory must belong to the child.
-
-Show, Don't Tell: Use vivid, sensory language to describe the world. Instead of saying a character is "brave," show them taking a deep breath and doing the scary thing.
-
-Engaging to Read Aloud: Write with a clear rhythm. Use sound devices like onomatopoeia (splash, crunch, beep) and alliteration where appropriate to make the story fun to hear.
-
-Integrate Interests: Subtly weave the child's other interests into the story's setting, character traits, or plot points.
-
-Critical Don'ts:
-DO NOT Be Preachy: The story's message or moral should be embedded within the plot and the character's journey. Do not end the story with a direct, spelled-out lesson like "And the moral of the story is..."
-DO NOT Talk Down to the Child: Respect the reader's intelligence. Use clear, accessible language without being condescending.
-DO NOT Create Passive Characters: The protagonist must actively try to achieve their goal.
-
-Final Task:
-Write a complete story based on all the above rules and parameters. Give the story a fitting title.`;    }
-
     const selectedChildData = children.filter(c => selectedChildren.includes(c.id));
     try {
-        // The backend doesn't need to change. We just send the fully constructed prompt.
-        const res = await apiCall('post', '/generate-script', { userId, topic: finalPrompt, children: selectedChildData, isNeutral: isAnonymous, gradeLevel });
+        const res = await apiCall('post', '/generate-script', { 
+            userId, 
+            topic, // Send the raw topic
+            contentType, // NEW: Send the selected content type
+            children: selectedChildData, 
+            isNeutral: isAnonymous, 
+            gradeLevel 
+        });
         setScript(res.script);
     } catch (err) {
         setError(`Script generation failed: ${err.message}`);
@@ -721,20 +714,14 @@ const handleSharePodcast = async (job) => {
         className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"
         rows="4"
     /> {/* This is the new checkbox section */}
-<div className="flex items-center justify-start py-4">
-    <input
-        id="story-mode-check"
-        type="checkbox"
-        checked={isStoryMode}
-        onChange={(e) => setIsStoryMode(e.target.checked)}
-        className="h-5 w-5 rounded bg-surface border-muted text-primary focus:ring-primary cursor-pointer"
-    />
-    <label
-        htmlFor="story-mode-check"
-        className="ml-3 block text-md font-medium text-text-main cursor-pointer"
-    >
-        Tell it as a story ✨
-    </label>
+{/* --- NEW Content Type Selector --- */}
+<div>
+    <label className="block text-lg font-semibold text-text-main mb-2">Choose a format</label>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <ContentTypeButton type="podcast" selectedType={contentType} setType={setContentType} label="🎙️ Podcast" />
+        <ContentTypeButton type="story" selectedType={contentType} setType={setContentType} label="📚 Story" />
+        <ContentTypeButton type="poem" selectedType={contentType} setType={setContentType} label="✒️ Poem" />
+    </div>
 </div>
 </div>
                         <div>
