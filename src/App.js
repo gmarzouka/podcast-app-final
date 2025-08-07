@@ -724,33 +724,45 @@ const handleSharePodcast = async (job) => {
     </div>
 </div>
 </div>
-                        <div>
-    <label htmlFor="gradeLevel" className="block text-lg font-semibold text-text-main mb-2">Academic Level</label>
-    <select 
-        id="gradeLevel" 
-        value={gradeLevel} 
-        onChange={e => setGradeLevel(e.target.value)} 
-        className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"
-    >
-        <option>Preschool</option>
-        <option>Kindergarten</option>
-        <option>1st Grade</option>
-        <option>2nd Grade</option>
-        <option>3rd Grade</option>
-        <option>4th Grade</option>
-        <option>5th Grade</option>
-        <option>6th Grade</option>
-        <option>7th Grade</option>
-        <option>8th Grade</option>
-        <option>9th Grade</option>
-        <option>10th Grade</option>
-        <option>11th Grade</option>
-        <option>12th Grade</option>
-        <option>College</option>
-        <option>Adult</option>
-    </select>
-</div>
-                        <div><label className="block text-lg font-semibold text-text-main mb-2">Voice</label><select value={voiceId} onChange={e => setVoiceId(e.target.value)} className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary">{Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}</select></div> <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-text-main bg-primary rounded-lg hover:bg-primary-hover disabled:bg-muted"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-muted pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3> <span className="text-sm text-text-muted">(Don't like the output? No problem, change the topic or question and click "Generate Preview" for a new script. Want to make minor changes? Feel free to click below to edit the script before submitting for audio generation.)</span>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <label htmlFor="gradeLevel" className="block text-lg font-semibold text-text-main mb-2">Academic Level</label>
+        <select
+            id="gradeLevel"
+            value={gradeLevel}
+            onChange={e => setGradeLevel(e.target.value)}
+            className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"
+        >
+            <option>Preschool</option>
+            <option>Kindergarten</option>
+            <option>1st Grade</option>
+            <option>2nd Grade</option>
+            <option>3rd Grade</option>
+            <option>4th Grade</option>
+            <option>5th Grade</option>
+            <option>6th Grade</option>
+            <option>7th Grade</option>
+            <option>8th Grade</option>
+            <option>9th Grade</option>
+            <option>10th Grade</option>
+            <option>11th Grade</option>
+            <option>12th Grade</option>
+            <option>College</option>
+            <option>Adult</option>
+        </select>
+    </div>
+    <div>
+        <label htmlFor="voiceId" className="block text-lg font-semibold text-text-main mb-2">Voice</label>
+        <select 
+            id="voiceId" 
+            value={voiceId} 
+            onChange={e => setVoiceId(e.target.value)} 
+            className="w-full bg-background border-2 border-muted rounded-lg p-3 focus:ring-primary focus:border-primary"
+        >
+            {Object.entries(voiceOptions).map(([label, id]) => (<option key={id} value={id}>{label}</option>))}
+        </select>
+    </div>
+</div>                        <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center px-6 py-4 text-lg font-bold text-text-main bg-primary rounded-lg hover:bg-primary-hover disabled:bg-muted"> {isLoading ? ( <><LoaderIcon /> Loading...</> ) : ( '✨ Generate Script Preview ✨' )} </button> </form> {script && (<div className="border-t-2 border-muted pt-6 space-y-4"><h3 className="text-2xl font-bold">Script Preview</h3> <span className="text-sm text-text-muted">(Don't like the output? No problem, change the topic or question and click "Generate Preview" for a new script. Want to make minor changes? Feel free to click below to edit the script before submitting for audio generation.)</span>
                         <textarea 
     value={script} 
     onChange={(e) => setScript(e.target.value)}
