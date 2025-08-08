@@ -221,12 +221,19 @@ function PodcastGenerator({ signOut, user }) {
   const pollingIntervalRef = useRef(null);
   
   const voiceOptions = {
-      'Friendly Male': 'pNInz6obpgDQGcFmaJgB',      // Adam
-      'Calm Female': '21m00Tcm4TlvDq8ikWAM',        // Rachel
-      'Energetic Narrator': 'ErXwobaYiN019PkySvjV', // Antoni
-      'Female Villain': 'flHkNRp1BlvT73UL6gyz', // Jessica Anne Bogart
-      'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', // Grandpa Spud Oxley
-      'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' //Austin
+      'Amelia (British Female)': 'ZF6FPAbjXT4488VcRRnw', // Amelia British Voice
+      'Claudia (Columbian Female)': '21m00Tcm4TlvDq8ikWAM', // Marcela
+      'Hope (Female)': 'zGjIP4SZlMnY9m93k97r', // Hope
+      'Upbeat Samantha (Female)': 'tnSpp4vdxKPjI9w0GnoV', // Upbeat Samantha
+      'Jessa (Female)': 'yj30vwTGJxSHezdAGsv9', // Jessa
+      'Jessica Anne (Female Villain)': 'flHkNRp1BlvT73UL6gyz', // Jessica Anne Bogart
+      'American Grandpa (Male)': 'NOpBlnGInO9m6vDvFkFC', // Grandpa Spud Oxley
+      'Hank (Southern Male)': '6F5Zhi321D3Oq7v1oNT4', // Hank
+      'Wyatt Wise Cowboy (Male)': 'YXpFCvM1S3JbWEJhoskW', // Wyatt
+      'Clyde (British Male)': 'wyWA56cQNU2KqUW4eCsI', // Clyde British Male
+      'Adam Late Night Radio Host (Male)': 'NFG5qt843uXKj4pFvR7C', // Adam
+      'Deep Thriller Voice (Male)': 'nZ5WsS2E2UAALki8m2V6', // Ranbir
+      'Karan (Energetic Indian Male)': 'T8lgQl6x5PSdhmmWx42m' // Karan
   };
   const API_BASE_URL = 'https://if0q6p8bt4.execute-api.us-east-2.amazonaws.com/Prod';
 
