@@ -385,12 +385,15 @@ const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, onSho
 
     return (
         <div className={`bg-muted rounded-lg p-4 transition-all ${isActive ? 'ring-2 ring-accent' : ''}`}>
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                     <p className="font-bold text-lg leading-tight">{job.title}</p>
+            <div className="flex flex-col gap-3">
+                {/* Text content - will now span the full width */}
+                <div className="min-w-0">
+                    <p className="font-bold text-lg leading-tight">{job.title}</p>
                     <p className="text-sm text-text-muted">{new Date(job.createdAt).toLocaleString()}</p>
                 </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
+
+                {/* Action Buttons - now on their own line, aligned to the right */}
+                <div className="flex items-center justify-end gap-1">
                     <button onClick={() => onShowDetails(job)} title="View Details" className="text-text-muted hover:text-accent p-2 rounded-full transition-colors"><InfoIcon /></button>
                     <button onClick={() => onShare(job)} title="Share Podcast" className="text-text-muted hover:text-blue-400 p-2 rounded-full transition-colors"><ShareIcon /></button>
                     <button onClick={() => onDelete(job.jobId)} title="Delete Podcast" className="text-text-muted hover:text-red-500 p-2 rounded-full transition-colors"><TrashIcon /></button>
@@ -399,6 +402,8 @@ const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, onSho
                     </button>
                 </div>
             </div>
+
+            {/* The active player UI with progress bar */}
             {isActive && (
                 <div className="mt-3 pt-3 border-t border-surface">
                     <div className="flex items-center gap-2 text-sm">
@@ -614,11 +619,24 @@ const PodcastGenerator = ({ user, signOut, activeTheme, onThemeChange, themes })
     const [sortOrder, setSortOrder] = useState('date');
     const [isCreatorOpen, setIsCreatorOpen] = useState(true);
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
-    const voiceOptions = { 'Friendly Male': 'pNInz6obpgDQGcFmaJgB', 'Calm Female': '21m00Tcm4TlvDq8ikWAM', 'Energetic Narrator': 'ErXwobaYiN019PkySvjV', 'Female Villain': 'flHkNRp1BlvT73UL6gyz', 'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', 'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' };
     const [isThemeModalOpen, setIsThemeModalOpen] = useState(false); 
     const [contentType, setContentType] = useState('podcast'); // 'podcast', 'story', or 'poem'
     const [selectedJobForDetail, setSelectedJobForDetail] = useState(null); // <-- ADD THIS LINE
-   
+    const voiceOptions = {
+      'Amelia (British Female)': 'ZF6FPAbjXT4488VcRRnw', // Amelia British Voice
+      'Claudia (Columbian Female)': '21m00Tcm4TlvDq8ikWAM', // Marcela
+      'Hope (Female)': 'zGjIP4SZlMnY9m93k97r', // Hope
+      'Upbeat Samantha (Female)': 'tnSpp4vdxKPjI9w0GnoV', // Upbeat Samantha
+      'Jessa (Female)': 'yj30vwTGJxSHezdAGsv9', // Jessa
+      'Jessica Anne (Female Villain)': 'flHkNRp1BlvT73UL6gyz', // Jessica Anne Bogart
+      'American Grandpa (Male)': 'NOpBlnGInO9m6vDvFkFC', // Grandpa Spud Oxley
+      'Hank (Southern Male)': '6F5Zhi321D3Oq7v1oNT4', // Hank
+      'Wyatt Wise Cowboy (Male)': 'YXpFCvM1S3JbWEJhoskW', // Wyatt
+      'Clyde (British Male)': 'wyWA56cQNU2KqUW4eCsI', // Clyde British Male
+      'Adam Late Night Radio Host (Male)': 'NFG5qt843uXKj4pFvR7C', // Adam
+      'Deep Thriller Voice (Male)': 'nZ5WsS2E2UAALki8m2V6', // Ranbir
+      'Karan (Energetic Indian Male)': 'T8lgQl6x5PSdhmmWx42m' // Karan
+  };
     // Find and replace this entire useEffect block in the PodcastGenerator component
 useEffect(() => {
     const fetchUserData = async () => {
