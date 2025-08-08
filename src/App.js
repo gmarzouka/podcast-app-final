@@ -50,6 +50,7 @@ const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" heigh
 const ChevronDownIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>);
 const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>);
 const ShareIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>);
+const InfoIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>);
 const ContentTypeButton = ({ type, selectedType, setType, label }) => {
     const isSelected = type === selectedType;
     return (
@@ -288,35 +289,120 @@ const ChildSelector = ({ children, selectedChildren, setSelectedChildren }) => {
     );
 };
 
+// --- *** NEW & IMPROVED *** PODCAST DETAIL MODAL WITH PLAYER ---
+const PodcastDetailModal = ({ job, onClose }) => {
+    const audioRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [duration, setDuration] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
 
-// --- PODCAST LIST ITEM COMPONENT ---
-const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, currentTrackUrl, currentTime, duration, onSeek }) => {
+    // Effect to cleanup and pause audio when the modal is closed
+    useEffect(() => {
+        const audio = audioRef.current;
+        return () => {
+            if (audio) {
+                audio.pause();
+            }
+        };
+    }, []);
+
+    if (!job) return null;
+
+    // Player control functions
+    const handlePlayPause = () => {
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+    };
+
+    const handleTimeUpdate = () => setCurrentTime(audioRef.current.currentTime);
+    const handleLoadedMetadata = () => setDuration(audioRef.current.duration);
+    const handleSeek = (e) => {
+        audioRef.current.currentTime = e.target.value;
+        setCurrentTime(e.target.value);
+    };
+    
+    const getContentTypeLabel = (type) => {
+        if (!type) return 'Podcast';
+        return type.charAt(0).toUpperCase() + type.slice(1);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <audio 
+                ref={audioRef} 
+                src={job.audioUrl} 
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
+                className="hidden"
+            />
+            <div className="bg-surface rounded-lg p-6 w-full max-w-2xl shadow-xl border border-muted flex flex-col max-h-[90vh]">
+                <div className="flex-shrink-0">
+                    <div className="flex justify-between items-start mb-4">
+                        <div>
+                            <h2 className="text-2xl font-bold text-text-main">{job.title}</h2>
+                            <div className="flex items-center text-sm text-text-muted mt-1 space-x-4">
+                                <span>For: {job.childNames || 'N/A'}</span>
+                                <span className="font-semibold">{getContentTypeLabel(job.contentType)}</span>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="text-text-muted hover:text-text-main"><CloseIcon /></button>
+                    </div>
+                </div>
+
+                {/* --- SCRIPT AREA --- */}
+                <div className="flex-grow overflow-y-auto bg-background p-4 rounded-md border border-muted mb-4">
+                    <p className="text-text-main whitespace-pre-wrap">{job.script}</p>
+                </div>
+                
+                {/* --- NEW PLAYER CONTROLS --- */}
+                <div className="flex-shrink-0 bg-muted p-3 rounded-lg">
+                    <div className="flex items-center gap-4">
+                        <button onClick={handlePlayPause} className="bg-primary hover:bg-primary-hover rounded-full p-3 text-background">
+                            {isPlaying ? <PauseIcon /> : <PlayIcon />}
+                        </button>
+                        <div className="flex items-center gap-2 text-sm w-full">
+                            <span>{formatTime(currentTime)}</span>
+                            <input type="range" min="0" max={duration || 0} value={currentTime} onChange={handleSeek} className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-accent"/>
+                            <span>{formatTime(duration)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onClick={onClose} className="mt-4 flex-shrink-0 w-full bg-primary hover:bg-primary-hover rounded-md px-4 py-2 font-semibold">Close</button>
+            </div>
+        </div>
+    );
+};
+
+// --- *** UPDATED *** PODCAST LIST ITEM COMPONENT ---
+const PodcastListItem = ({ job, isPlaying, onPlayPause, onDelete, onShare, onShowDetails, currentTrackUrl, currentTime, duration, onSeek }) => {
     const isActive = currentTrackUrl === job.audioUrl;
 
     return (
         <div className={`bg-muted rounded-lg p-4 transition-all ${isActive ? 'ring-2 ring-accent' : ''}`}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                    <p className="font-bold text-lg truncate">{job.title}</p>
+                     <p className="font-bold text-lg leading-tight">{job.title}</p>
                     <p className="text-sm text-text-muted">{new Date(job.createdAt).toLocaleString()}</p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-                    {/* Share Button (New) */}
-                    <button onClick={() => onShare(job)} title="Share Podcast" className="text-text-muted hover:text-blue-400 p-2 rounded-full transition-colors">
-                        <ShareIcon />
-                    </button>
-                    {/* Delete Button */}
-                    <button onClick={() => onDelete(job.jobId)} title="Delete Podcast" className="text-text-muted hover:text-red-500 p-2 rounded-full transition-colors">
-                        <TrashIcon />
-                    </button>
-                    {/* Play/Pause Button */}
-                    <button onClick={() => onPlayPause(job)} className="bg-primary hover:bg-primary-hover rounded-full p-3">
+                <div className="flex items-center gap-1 flex-shrink-0">
+                    <button onClick={() => onShowDetails(job)} title="View Details" className="text-text-muted hover:text-accent p-2 rounded-full transition-colors"><InfoIcon /></button>
+                    <button onClick={() => onShare(job)} title="Share Podcast" className="text-text-muted hover:text-blue-400 p-2 rounded-full transition-colors"><ShareIcon /></button>
+                    <button onClick={() => onDelete(job.jobId)} title="Delete Podcast" className="text-text-muted hover:text-red-500 p-2 rounded-full transition-colors"><TrashIcon /></button>
+                    <button onClick={() => onPlayPause(job)} className="bg-primary hover:bg-primary-hover rounded-full p-3 text-background">
                         {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
                     </button>
                 </div>
             </div>
             {isActive && (
-                <div className="mt-4 pt-4 border-t border-muted">
+                <div className="mt-3 pt-3 border-t border-surface">
                     <div className="flex items-center gap-2 text-sm">
                         <span>{formatTime(currentTime)}</span>
                         <input type="range" min="0" max={duration} value={currentTime} onChange={onSeek} className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-accent"/>
@@ -533,8 +619,8 @@ const PodcastGenerator = ({ user, signOut, activeTheme, onThemeChange, themes })
     const voiceOptions = { 'Friendly Male': 'pNInz6obpgDQGcFmaJgB', 'Calm Female': '21m00Tcm4TlvDq8ikWAM', 'Energetic Narrator': 'ErXwobaYiN019PkySvjV', 'Female Villain': 'flHkNRp1BlvT73UL6gyz', 'American Grandpa': 'NOpBlnGInO9m6vDvFkFC', 'Texan Boy': 'Bj9UqZbhQsanLzgalpEG' };
     const [isThemeModalOpen, setIsThemeModalOpen] = useState(false); 
     const [contentType, setContentType] = useState('podcast'); // 'podcast', 'story', or 'poem'
-
-   // Replace it with this
+    const [selectedJobForDetail, setSelectedJobForDetail] = useState(null); // <-- ADD THIS LINE
+   
     // Find and replace this entire useEffect block in the PodcastGenerator component
 useEffect(() => {
     const fetchUserData = async () => {
@@ -656,6 +742,14 @@ const handleDeletePodcast = async (jobIdToDelete) => {
         setError(`Failed to delete podcast: ${err.message}`);
     }
 };
+// Handle Show Details 
+const handleShowDetails = (job) => {
+        if (audioRef.current) {
+            audioRef.current.pause(); // Pause the main player
+        }
+        setSelectedJobForDetail(job); // Open the modal with the selected job
+    };
+
 // New share handler
 const handleSharePodcast = async (job) => {
     const shareData = {
@@ -688,6 +782,7 @@ const handleSharePodcast = async (job) => {
         <div className="min-h-screen bg-background text-text-main font-sans flex flex-col">
             <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} className="hidden" />
             <ChildManagementModal isOpen={isChildModalOpen} onClose={() => setIsChildModalOpen(false)} children={children} setChildren={setChildren} userId={userId}/>
+            <PodcastDetailModal job={selectedJobForDetail} onClose={() => setSelectedJobForDetail(null)} />
             <header className="bg-surface/50 backdrop-blur-sm p-4 sticky top-0 z-10 border-b border-muted">
     <div className="flex justify-between items-center">
         <div className="flex items-center text-2xl font-bold text-text-main"> <HootIcon className="h-10 w-10" /> <h1 className="ml-1">HootPODS</h1> </div>
@@ -771,7 +866,7 @@ const handleSharePodcast = async (job) => {
                     </div>
                     <div className="bg-surface rounded-xl shadow-lg">
                         <button onClick={() => setIsLibraryOpen(!isLibraryOpen)} className="w-full flex justify-between items-center p-6 text-left"> <h2 className="text-3xl font-bold">Your Podcast Library</h2> <ChevronDownIcon className={`h-6 w-6 transition-transform ${isLibraryOpen ? 'rotate-180' : ''}`} /> </button>
-                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-primary text-text-main' : 'bg-muted text-text-muted'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-primary text-text-main' : 'bg-muted text-text-muted'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} onDelete={handleDeletePodcast} onShare={handleSharePodcast} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-text-muted">Your library is empty.</p>}</div>)} </div> )}
+                        {isLibraryOpen && ( <div className="p-6 pt-0"> <div className="flex justify-center gap-4 mb-4"><button onClick={() => setSortOrder('date')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'date' ? 'bg-primary text-text-main' : 'bg-muted text-text-muted'}`}>Sort by Date</button><button onClick={() => setSortOrder('topic')} className={`px-4 py-2 rounded-full font-semibold ${sortOrder === 'topic' ? 'bg-primary text-text-main' : 'bg-muted text-text-muted'}`}>Sort by Topic</button></div> {isHistoryLoading ? (<div className="flex justify-center"><LoaderIcon className="h-8 w-8"/></div>) : (<div className="space-y-4 max-h-[80vh] overflow-y-auto pr-3">{sortedHistory.map(job => ( <PodcastListItem key={job.jobId} job={job} isPlaying={isPlaying} currentTrackUrl={currentTrack?.url} onPlayPause={handlePlayPause} onDelete={handleDeletePodcast} onShare={handleSharePodcast} onShowDetails={handleShowDetails} currentTime={currentTime} duration={duration} onSeek={handleSeek} /> ))}{sortedHistory.length === 0 && <p className="text-center text-text-muted">Your library is empty.</p>}</div>)} </div> )}
                     </div>
                 </div>
             </main>
