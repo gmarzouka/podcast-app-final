@@ -624,7 +624,6 @@ const PodcastGenerator = ({ user, signOut, activeTheme, onThemeChange, themes })
     const [selectedJobForDetail, setSelectedJobForDetail] = useState(null); // <-- ADD THIS LINE
     const voiceOptions = {
       'Amelia (British Female)': 'ZF6FPAbjXT4488VcRRnw', // Amelia British Voice
-      'Claudia (Columbian Female)': '21m00Tcm4TlvDq8ikWAM', // Marcela
       'Hope (Female)': 'zGjIP4SZlMnY9m93k97r', // Hope
       'Upbeat Samantha (Female)': 'tnSpp4vdxKPjI9w0GnoV', // Upbeat Samantha
       'Jessa (Female)': 'yj30vwTGJxSHezdAGsv9', // Jessa
